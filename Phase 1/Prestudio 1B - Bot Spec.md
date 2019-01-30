@@ -104,6 +104,8 @@ Brake Lights, Turn signals, Headlights, Horn, LED etc...
  * **Output**:  Control Signals for various systems 
  * **Functionality**: Runs all logic and code from running autonomously
 
-**Cost**
+**Miscellaneous**
 
- * $17,599
+ * **Cost**: $17,599
+ * **Weight**: ~3 lbs.
+ * **Size**: ~10 in. x 10 in. x 10 in.
