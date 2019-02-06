@@ -1,0 +1,54 @@
+#include <Arduino.h>
+#include <HardwareSerial.h>
+#include <avr/io.h>
+#include <stdio.h>
+#include "src/MotorInterface.h"
+
+#define SHOULD_USE_PRINTF
+// http://playground.arduino.cc/Main/Printf
+#ifdef SHOULD_USE_PRINTF
+
+static FILE uartout = {0};
+// create a output function
+// This works because Serial.write, although of
+// type virtual, already exists.
+static int uart_putchar(char c, FILE *stream) {
+        Serial.write(c);
+        return 0;
+}
+
+#endif
+
+
+
+constexpr unsigned POT_1 = A0;
+constexpr unsigned POT_2 = A1;
+
+constexpr JD::MotorConfig<JD::Pin::Motor1f, JD::Pin::Motor1b, 255, 255> left;
+constexpr JD::MotorConfig<JD::Pin::Motor2f, JD::Pin::Motor2b, 255, 255> right;
+
+void setup() {
+        Serial.begin(115200);
+
+        #ifdef SHOULD_USE_PRINTF
+        // fill in the UART file descriptor with pointer to writer.
+        fdev_setup_stream(&uartout, uart_putchar, NULL, _FDEV_SETUP_WRITE);
+        // The uart is the standard output device STDOUT.
+        stdout = &uartout;
+        #endif
+}
+
+void loop() {
+        static int prev_1 = 0,  prev_2 = 0;
+
+        if (!(analogRead(POT_1) - prev_1 == 0) and (analogRead(POT_2) - prev_2  == 0)){
+                
+                unsigned pot[2] = {analogRead(POT_1), analogRead(POT_2)};
+                printf("POT_1 =%d POT_2 = %d\n", pot[0], pot[1]);
+                constexpr double POT_MAX = 1023;
+                analogWrite(POT_1, pot[0] / POT_MAX * decltype(left)::Max);
+                analogWrite(POT_2, pot[1] / POT_MAX * decltype(left)::Max);
+                prev_1 = pot[0];
+        prev_2 = pot[1];
+        }
+}
