@@ -1,9 +1,9 @@
 
 #include "src/MotorInterface.h"
+#include "src/DriveSystem.h"
 
-
-constexpr JD::MotorConfig<JD::Pin::Motor1f, JD::Pin::Motor1b, 255, 255> left;
-constexpr JD::MotorConfig<JD::Pin::Motor2f, JD::Pin::Motor2b, 255, 255> right;
+constexpr JD::MotorConfig left = {JD::DriveSystem::Motor1f, JD::DriveSystem::Motor1b, 255, 255};
+constexpr JD::MotorConfig right = {JD::DriveSystem::Motor2f, JD::DriveSystem::Motor2b, 255, 255} ;
 
 void setup() {
         Serial.begin(115200);

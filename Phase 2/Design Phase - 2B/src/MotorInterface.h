@@ -3,11 +3,17 @@
 
 // Junior Design Namespace
 namespace JD {
-enum Pin : unsigned { Motor1f = 2, Motor1b = 3, Motor2b = 4, Motor2f = 5 };
 
-template <Pin forward, Pin backward, int maxForwards, int maxBackwards>
+typedef unsigned Pin;
+
 struct MotorConfig {
-        enum {Max = 255};
+        MotorConfig()                     = delete;
+        MotorConfig(const MotorConfig &m) = delete;
+
+        constexpr MotorConfig(Pin f, Pin b, int mF, int mB)
+            : forward(f), backward(b), maxForwards(mF), maxBackwards(mB) {}
+
+        enum { Max = 255 };
         /**
          * @brief Drives the motor in the defined forwards orientation.
          *        Can scale speed from 0 to 1;
@@ -33,6 +39,11 @@ struct MotorConfig {
         void stop() const { drive(0, 0, false); }
 
 private:
+        const Pin forward;
+        const Pin backward;
+        const int maxForwards;
+        const int maxBackwards;
+
         void drive(double val, int maxVolt, bool forwards) const {
                 val = (val > 1) ? 1 : (val < 0) ? 0 : val;
 
@@ -42,9 +53,11 @@ private:
 };
 
 // struct DriveSystem {
-//         constexpr JD::MotorConfig<JD::Pin::Motor1f, JD::Pin::Motor1b, 255, 255>
+//         constexpr JD::MotorConfig<JD::Pin::Motor1f, JD::Pin::Motor1b, 255,
+//         255>
 //             left;
-//         constexpr JD::MotorConfig<JD::Pin::Motor2f, JD::Pin::Motor2b, 255, 255>
+//         constexpr JD::MotorConfig<JD::Pin::Motor2f, JD::Pin::Motor2b, 255,
+//         255>
 //             right;
 
 //         static void forwards(double val = 1){
