@@ -52,17 +52,5 @@ private:
         }
 };
 
-// struct DriveSystem {
-//         constexpr JD::MotorConfig<JD::Pin::Motor1f, JD::Pin::Motor1b, 255,
-//         255>
-//             left;
-//         constexpr JD::MotorConfig<JD::Pin::Motor2f, JD::Pin::Motor2b, 255,
-//         255>
-//             right;
-
-//         static void forwards(double val = 1){
-//                 left.forwards()
-//         }
-// };
 }  // namespace JD
 #endif

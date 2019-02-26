@@ -1,0 +1,44 @@
+Delay 100 between LED switches
+
+blue
+r: 192.00 b: 105.00 br: 286.00 
+
+yellow
+r: 220.00 b: 176.00 br: 370.00
+
+black
+r: 150.00 b: 97.00 br: 239.00
+
+red
+r: 158.00 b: 136.00 br: 282.00
+
+
+Delay 5 between LED switches
+
+
+blue 
+r: 189.00 b: 105.00 br: 281.00
+
+yellow
+r: 216.00 b: 169.00 br: 360.00
+
+black
+r: 151.00 b: 99.00 br: 241.00
+
+red
+r: 158.00 b: 136.00 br: 281.00
+
+
+Delay 3 between LED switches
+
+blue
+r: 195.00 b: 108.00 br: 279.00
+
+yellow
+r: 226.00 b: 177.00 br: 360.00
+
+black
+r: 155.00 b: 101.00 br: 238.00
+
+red
+r: 165.00 b: 144.00 br: 286.00

@@ -71,21 +71,13 @@ reference straight line requirement.
 
 6. **What are the voltage and current limits of this H-Bridge?** 
 
-\begin{center}
-\begin{tabular}{ | c | c | c |}
-\hline
- Parameter & Value & Unit \\
-\hline
- Supply Voltage & 36 & V \\
-\hline
- Logic Supply Voltage & 36 & V\\
- hline
- Input Voltage & 7 & V\\
-\hline
- Enable Peak Output Current & 1.2 & V \\
- \hline
-\end{tabular}
-\end{center}
+
+| Parameter                  | Value | Unit |
+| -------------------------- | ----- | ---- |
+| Supply Voltage             | 36    | V    |
+| Logic Supply Voltage       | 36    | V    |
+| Input Voltage              | 7     | V    |
+| Enable Peak Output Current | 1.2   | V    |
 
 7. **You know how a CMOS inverter is constructed from MOSFETs:  How is the buffer
 shown on the L293D schematic constructed?  How is this similar to your discrete
