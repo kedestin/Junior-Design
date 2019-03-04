@@ -3,7 +3,7 @@
 
 #include <EEPROM.h>
 
-#include "Vector3.h"
+#include "Vector.h"
 
 /**
  * @brief A macro for defining an enum who's values increment by specified size
@@ -22,9 +22,10 @@
  *         ...      A list of ADD_FIELD macros
  *
  */
-#define CUMULATIVE_ENUM(name, ...)                                          \
-        enum class name {                                                   \
-                EXPAND(DEFER(CUMULATE_FIELD)(0, __VA_ARGS__ END_OFFSET, 1)) \
+
+#define CUMULATIVE_ENUM(name, ...)                                           \
+        enum name {                                                          \
+                EXPAND(DEFER(CUMULATE_FIELD)(0, 0, __VA_ARGS__, END_OFFSET)) \
         }
 
 // Utility macros for proper deferal and reevaluation
@@ -33,33 +34,31 @@
 #define EXPAND(...) __VA_ARGS__
 
 // Generates an entry for enum
-#define CUMULATE_FIELD(previous, curr, size) curr = (previous) + (size)
+#define CUMULATE_FIELD(previous, size, curr) curr = (previous) + (size)
 
 // Macro that expects to be placed after "ADD_FIELD",
 // "DEFER(CUMULATIVE_FIELD)(name"  , or the first argument of "CUMULATIVE_ENUM"
-#define ADD_FIELD(name, size) name, size), DEFER(CUMULATE_FIELD)(name,
+#define ADD_FIELD(name, size) name), DEFER(CUMULATE_FIELD)(name,size
 
 namespace JD {
 
 struct Calibration {
-        CUMULATIVE_ENUM(Offset,
-                        ADD_FIELD(ColorBlack, sizeof(Vector3))
-                            ADD_FIELD(ColorYellow, sizeof(Vector3))
-                                ADD_FIELD(ColorRed, sizeof(Vector3))
-                                    ADD_FIELD(ColorBlue, sizeof(Vector3)));
-
+        CUMULATIVE_ENUM(Offset, ADD_FIELD(ColorBlack, sizeof(Vector<3>)),
+                        ADD_FIELD(ColorYellow, sizeof(Vector<3>)),
+                        ADD_FIELD(ColorRed, sizeof(Vector<3>)),
+                        ADD_FIELD(ColorBlue, sizeof(Vector<3>)));
 
         // Todo add some error checking to make sure that
         // sizeof(data) == size from ADD_FIELD
         template <class T>
-        static void set(Offset o, const T& data){
+        static void set(Offset o, const T& data) {
                 EEPROM.put(o, data);
         }
 
         // Todo add some error checking to make sure that
         // sizeof(data) == size from ADD_FIELD
         template <class T>
-        static void get(Offset o, T& data){
+        static void get(Offset o, T& data) {
                 EEPROM.get(o, data);
         }
 };
