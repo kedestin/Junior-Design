@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+IndentWidth: 8
+ColumnLimit: 79
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AccessModifierOffset: -8
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+Standard: Cpp11
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline

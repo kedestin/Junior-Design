@@ -58,17 +58,17 @@ private:
                 // Assumes duty cycle of 50%
                 long unsigned half_period = period / 2;
                 long unsigned curr        = millis();
-
                 if (curr > led.blink_end) {
                         led.off();
-                        led.unsubscribe();
+                        led.reset();
                         return;
                 }
 
                 if (((curr - start) / half_period) % 2 == 0) {
-                        led.on(0.2);
-                } else
-                        led.off();
+                        led.on();
+                } else{
+                        led.on(0);
+                }
         }
 
 public:
@@ -91,11 +91,12 @@ public:
               curr(0) {}
 
         void off() {
-                unsubscribe();
                 curr = 0;
                 analogWrite(m_pin, curr);
         }
-
+        void reset(){
+                unsubscribe();
+        }
         void on(float val = 1.0) {
                 curr = MAX * forceInRange(val, 0.0, 1.0);
                 analogWrite(m_pin, curr);
@@ -109,6 +110,12 @@ public:
                 return not isOff();
         }
 
+        void toggle(){
+                if (isOff())
+                        on();
+                else
+                        off();
+        }
         void update() override {
                 if (onUpdate != nullptr)
                         reinterpret_cast<LEDUpdateFunction>(onUpdate)(*this);
