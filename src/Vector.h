@@ -31,6 +31,13 @@ struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
 
+/*
+ *
+ * Vector Class
+ *
+ */
+
+
 template <unsigned size>
 class Vector {
         static_assert(size != 0, "Cannot have a 0 dimensional vector");
