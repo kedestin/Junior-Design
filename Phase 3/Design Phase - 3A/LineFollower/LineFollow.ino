@@ -20,6 +20,7 @@ const T& minimum(const T& a, const T& b, const Args&... args) {
         return minimum(b < a ? b : a, args...);
 }
 
+<<<<<<< HEAD
 // template <class... T>
 // bool lineFollow(T... args) {
 //         constexpr double ki = 0.5;
@@ -111,15 +112,20 @@ const T& minimum(const T& a, const T& b, const Args&... args) {
 //         return true;
 // }
 
+=======
+>>>>>>> b20a303e0d0e63ebc7f085a0067fcc051e97866d
 template <class... T>
 bool lineFollow(T... args) {
         constexpr double ki = 0.5;
         constexpr double kp = 0.5;
         constexpr double kd = 0.5;
 
+<<<<<<< HEAD
         constexpr double speed      = 1;
         constexpr double stallSpeed = 0.2;
 
+=======
+>>>>>>> b20a303e0d0e63ebc7f085a0067fcc051e97866d
         static unsigned long lastTime           = 0;
         static double        outputSum          = 0;
         static double        output             = 0.0;
@@ -131,8 +137,13 @@ bool lineFollow(T... args) {
         unsigned long        sampleTime         = 10;
         unsigned long        timeChange         = (now - lastTime);
         double               setpoint           = 8.0;
+<<<<<<< HEAD
         double               outMin             = 0;
         double               outMax             = speed - stallSpeed;
+=======
+        double               outMin             = setpoint;
+        double               outMax             = 1e3;
+>>>>>>> b20a303e0d0e63ebc7f085a0067fcc051e97866d
 
         if (timeChange >= sampleTime) {
                 double input  = minimum(cs.error(args)...);
@@ -151,6 +162,7 @@ bool lineFollow(T... args) {
                 output = kp * error;
 
                 output += outputSum - kd * dInput;
+<<<<<<< HEAD
 
                 if (output > outMax)
                         output = outMax;
@@ -158,16 +170,76 @@ bool lineFollow(T... args) {
                         output = outMin;
 
                 // Serial.println(output);
+=======
+                // Serial.println(output);
+
+                // if (output > outMax)
+                //         output = outMax;
+                // else if (output < outMin)
+                //         output = outMin;
+
+>>>>>>> b20a303e0d0e63ebc7f085a0067fcc051e97866d
                 lastInput = input;
                 lastTime  = now;
         }
 
+<<<<<<< HEAD
         double inner = speed - output;
         double outer = speed;
 
         return true;
 }
 
+=======
+        double        speed        = 0.5;
+        static bool   left         = false;
+        static double timenegative = 0;
+        static double multiplier   = 1;
+        if (output < 0) {
+                // double outer = speed - output / 300;
+                // double inner = speed + output / 300;
+                double outer = 1;
+                if (timenegative == 0.0)
+                        timenegative = millis();
+
+                Serial.println(millis() - timenegative);
+
+                // If color can't be found for x amount of time, abort
+                if((millis() - timenegative) > 400)
+                // if (multiplier > 1 << 3)
+                        return false;
+
+                if (millis() - timenegative >
+                    (multiplier * 200 + 200 * (multiplier - 1))) {
+                        timenegative = 0;
+                        multiplier *= 2;
+                        left = !left;
+                }
+
+
+                // if (inner < 0.2)
+                // inner = 0.0;
+                // Output 
+                if (outer < 0.2)
+                        outer = 0.2;
+                // Serial.println(left ? "Left" : "Right");
+                // Serial.println(outer);
+                // Serial.println(inner);
+                if (left)
+                        ds.rotate(JD::DriveSystem::LEFT, outer);
+                else
+                        ds.rotate(JD::DriveSystem::RIGHT, outer);
+        } else {
+                timenegative = 0;
+                multiplier   = 1;
+                ds.forwards(speed);
+        }
+        lastOutput         = output;
+        lastlastOutput     = lastOutput;
+        lastlastlastOutput = lastlastOutput;
+        return true;
+}
+>>>>>>> b20a303e0d0e63ebc7f085a0067fcc051e97866d
 void loop() {
         static unsigned long lc = 0;
         for (auto p : peripherals)
@@ -175,6 +247,7 @@ void loop() {
 
         // ds.forwards(1);
 
+<<<<<<< HEAD
         ds.forwards(0);
         Serial.println();
         Serial.print("start\n");
@@ -194,4 +267,29 @@ void loop() {
         exit(1);
         Serial.println();
         delay(10);
+=======
+        switch (cs.read()){
+                case JD::ColorSensor::Blue: ds.forwards(0);
+                exit(1);
+                default: break;
+        }
+
+                // ds.forwards(0);
+        // Serial.println();
+        // Serial.print("start\n");
+        // switch (lc) {
+        //         case 0:
+        //         case __LINE__: lc = __LINE__;
+        //                 Serial.println(lc);
+        //                 if (lineFollow(JD::ColorSensor::Blue, JD::ColorSensor::Red))
+        //                         return;
+        //         default: lc = 0;
+        // }
+        // ds.forwards(0);
+        // Serial.println("exiting");
+        // Serial.flush();
+        // exit(1);
+        // Serial.println();
+        // delay(10);
+>>>>>>> b20a303e0d0e63ebc7f085a0067fcc051e97866d
 }
