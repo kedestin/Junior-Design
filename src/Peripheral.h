@@ -1,6 +1,8 @@
 #ifndef JD_PERIPHERAL_H
 #define JD_PERIPHERAL_H
 
+#include <stdint.h>
+
 namespace JD {
 
 class Peripheral {
