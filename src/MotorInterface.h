@@ -39,11 +39,23 @@ struct MotorConfig {
         void stop() const { drive(0, 0, false); }
 
 private:
+        // Pin that, when high, drives motor in forwards direction
         const Pin forward;
+        // Pin that, when high, drives motor in backwards direction
         const Pin backward;
+        // Max voltage to apply forwards (0 to 255)
         const int maxForwards;
+        // Max voltage to apply backwards (0 to 255)
         const int maxBackwards;
 
+
+        /**
+         * @brief Drives the motor in requested direction at requested speed
+         * 
+         * @param val      Speed (0 to 1)
+         * @param maxVolt  Maximum voltage to apply to motor (0 to 255)
+         * @param forwards Whether should go forwards
+         */
         void drive(double val, int maxVolt, bool forwards) const {
                 val = (val > 1) ? 1 : (val < 0) ? 0 : val;
 

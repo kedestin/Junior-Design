@@ -5,6 +5,10 @@
 
 namespace JD {
 
+/**
+ * @brief An abstraction for peripherals connected to the Arduino
+ * 
+ */
 class Peripheral {
 protected:
         typedef void (*UpdateFunction)(void *);
@@ -15,12 +19,22 @@ protected:
         constexpr Peripheral(uint8_t pin)
             : m_pin(pin), onUpdate(nullptr), subscribedAt(0) {}
 
+        /**
+         * @brief Sets onUpdate to requested update function
+         * 
+         * @param f 
+         * @return long unsigned  The time that the subscription happened
+         */
         long unsigned subscribe(UpdateFunction f) {
                 subscribedAt = millis();
                 onUpdate     = f;
                 return subscribedAt;
         }
 
+        /**
+         * @brief Unsets current update function
+         * 
+         */
         void unsubscribe() {
                 onUpdate     = nullptr;
                 subscribedAt = 0;

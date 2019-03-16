@@ -9,9 +9,24 @@ class Receiver : public Sensor {
 public:
         enum Message { msg200 = 2, msg300, msg400, msg500, msgNone };
 
-        enum class Status { receiving, start, ending, end, none };
-        Receiver(uint8_t pin) : Sensor(pin), filter(0.8, analogRead(m_pin)) {}
+        enum Status { receiving, start, ending, end, none };
+        Receiver(uint8_t pin) : Sensor(pin), filter(.4, analogRead(m_pin)) {}
 
+        /**
+         * @brief Gets the Status
+         * 
+         * @details A state machine that determines current state based
+         *          on data trend and previous state
+         * 
+         *          any state ---Rising Edge----------> start
+         *          start     ---No change (0 slope)--> receiving
+         *          receiving ---No change (0 slope)--> receiving
+         *          any state ---Falling Edge---------> ending
+         *          ending    ---No change (0 slope)--> end
+         *          end       ---No change (0 slope)--> none
+         * 
+         * @return Status 
+         */
         Status getStatus() {
                 static Status toReturn = Status::none;
                 // If message has just started, set to receiving
@@ -22,16 +37,26 @@ public:
                         toReturn = Status::none;
 
                 int prev = filter.current();
-                filter.update(analogRead(m_pin));
+                int raw  = analogRead(m_pin);
+                filter.update(raw);
                 int curr = filter.current();
-
+                // if (toReturn == Status::receiving){
+                //         Serial.print(raw);
+                //         Serial.print(' ');
+                //         Serial.print(prev);
+                //         Serial.print(' ');
+                //         Serial.print(curr);
+                //         Serial.print(' ');
+                //         Serial.print(millis());
+                //         Serial.println();
+                // }
                 double slope = (static_cast<double>(curr) - prev) /
                                (millis() - lastUpdated);
 
                 auto absVal   = [](double a) { return (a < 0) ? -a : a; };
                 auto approxEq = [absVal](double a, double b) {
-                        // 4 is an arbitrary threshold that seems to work well
-                        return absVal(a - b) < 4;
+                        // 5 is an arbitrary threshold that seems to work well
+                        return absVal(a - b) < 5;
                 };
                 // Serial.print(millis());
                 // Serial.print(' ');
@@ -53,30 +78,37 @@ public:
                         if (toReturn == Status::ending)
                                 toReturn = Status::end;
                 }
-
                 return toReturn;
         }
 
+        /**
+         * @brief Sets current message if detects end of message
+         * 
+         */
         void update() override {
+                // Reading is more accurate with < 10ms samplePeriod
                 if (millis() - lastUpdated > samplePeriod) {
                         Status currStatus = getStatus();
-                        // switch(currStatus){
-                        //         case Status::receiving:
-                        //         Serial.println("receiving");
-                        //                              break;
-                        //                 case Status::ending:
-                        //                 Serial.println("ending");
-                        //                              break;
-                        //                 case Status::end:
-                        //                 Serial.println("end");
-                        //                              break;
-                        //                 case Status::start:
-                        //                 Serial.println("start");
-                        //                               break;
-                        //                 default: Serial.println("none");
+                        // switch (currStatus) {
+                                // case Status::end: Serial.println("end"); break;
+                                // case Status::ending:
+                                //         Serial.println("ending");
+                                //         break;
+                                // case Status::start:
+                                //         Serial.println("start");
+                                //         break;
+                                // case Status::receiving:
+                                //         Serial.println("receiving");
+                                //         break;
+                                // case Status::none:
+                                //         break;
+                                //         Serial.println("none");
+                                //         break;
+                                // default: Serial.println("error"); break;
                         // }
                         if (currStatus == Status::receiving ||
-                            currStatus == Status::start) {
+                            currStatus == Status::start ||
+                            currStatus == Status::ending) {
                                 count += millis() - lastUpdated;
                                 // Serial.println(count);
                         } else if (currStatus == Status::end) {
@@ -97,6 +129,14 @@ public:
                 }
         }
 
+        /**
+         * @brief Returns the received message and resets
+         * 
+         * @Note  Messages that are unread will be overwritten by subsequent 
+         *        messages
+         * 
+         * @return Message that was read (msgNone if no message detected)
+         */
         Message receivedMsg() {
                 Message tmp = currMsg;
                 currMsg     = msgNone;
@@ -107,7 +147,7 @@ private:
         ExponentialFilter<decltype(analogRead(m_pin))> filter;
         long unsigned                                  count       = 0;
         long unsigned                                  lastUpdated = 0;
-        long unsigned samplePeriod                                 = 10;  // ms
+        long unsigned samplePeriod                                 = 2;  // ms
         Message       currMsg                                      = msgNone;
 };
 

@@ -3,6 +3,10 @@
 #include "Peripheral.h"
 namespace JD {
 
+/**
+ * @brief An LED abstraction
+ * 
+ */
 class LED : public Peripheral {
 private:
         typedef void (*LEDUpdateFunction)(LED&);
@@ -19,6 +23,11 @@ private:
                 return (val > maxim) ? maxim : (val < minim) ? minim : val;
         }
 
+        /**
+         * @brief Fades LEDs
+         * 
+         * @param led  LED to fade
+         */
         static void fade_impl(LED& led) {
                 double     currTime = millis();
                 const long start    = led.subscribedAt;
@@ -51,6 +60,11 @@ private:
                 analogWrite(led.m_pin, led.curr);
         }
 
+        /**
+         * @brief Blinks LED
+         * 
+         * @param led LED to fade
+         */
         static void blink_impl(LED& led) {
                 int           period = 1000 * (1 / led.blink_frequency);
                 long unsigned start  = led.subscribedAt;

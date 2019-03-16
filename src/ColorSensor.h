@@ -22,19 +22,23 @@ private:
         LED    blue;
         Sensor phototransistor;
 
+        // Array of reference data
         RawData config[4];
 
-        RawData val, prev_val;
+        RawData val;
         Color   curr;
 
 public:
+        /**
+         * @brief Construct a new Color Sensor object, and loads reference
+         *        colors  from EEPROM
+         */
         ColorSensor(uint8_t red_pin, uint8_t blue_pin, uint8_t photo_pin)
             : Peripheral(photo_pin),
               phototransistor(photo_pin),
               red(red_pin),
               blue(blue_pin),
               val(),
-              prev_val(),
               curr(Black) {
                 Calibration::get(Calibration::ColorBlack, config[Black]);
                 Calibration::get(Calibration::ColorYellow, config[Yellow]);
@@ -42,8 +46,13 @@ public:
                 Calibration::get(Calibration::ColorBlue, config[Blue]);
         }
 
+        // Forbid default construction
         ColorSensor() = delete;
 
+        /**
+         * @brief Reads a triplet of data from sensor
+         *
+         */
         void update() override {
                 unsigned b, r, br;
                 blue.off();
@@ -70,55 +79,73 @@ public:
                 // Serial.print(br);
         }
 
-        void printConfig() {
-                for (auto c : config)
-                        printVec(c);
-        }
-
-
+        /**
+         * @brief Determines which reference color the current raw value best
+         *        matches
+         *
+         * @return Color the best match
+         */
         Color read() {
-                double  min_error = 1e10;
-                Color     max_i          = (Color) -1;
-                Color     i;
+                double min_error = 1e10;
+                Color  max_i     = (Color)-1;
+                Color  i;
                 for (i = Color::Black; i < Color::Yellow; i = (Color)(i + 1)) {
-                        switch (i) {
-                                case Black: Serial.print("Black: "); break;
-                                case Red: Serial.print("Red: "); break;
-                                case Yellow: Serial.print("Yellow: "); break;
-                                case Blue: Serial.print("Blue: "); break;
-                                default: break;
-                        }
+                        // switch (i) {
+                        //         case Black: Serial.print("Black: "); break;
+                        //         case Red: Serial.print("Red: "); break;
+                        //         case Yellow: Serial.print("Yellow: ");
+                        //         break; case Blue: Serial.print("Blue: ");
+                        //         break; default: break;
+                        // }
                         double curr_error = error(i);
-                        Serial.println(curr_error, 10);
+                        // Serial.println(curr_error, 10);
                         if (min_error > curr_error) {
-                                max_i          = i;
+                                max_i     = i;
                                 min_error = curr_error;
                         }
                 }
-                curr     = max_i;
+                curr = max_i;
                 return curr;
         }
 
-        double error(Color c){
-                return (config[c] - val).norm();
-        }
+        /**
+         * @brief  Computes the error between the requested reference color and
+         *         the current raw data
+         *
+         * @param c
+         *
+         * @return double Norm of the difference of the two vectors
+         */
+        double error(Color c) { return (config[c] - val).norm(); }
+
         const RawData& raw() { return val; }
-        double         r() { return val.data[0]; }
-        double         b() { return val.data[1]; }
-        double         br() { return val.data[2]; }
 
-        void toggleBlue() {
-                if (blue.isOn())
-                        blue.off();
-                else
-                        blue.on();
-        }
+        double r() { return val.data[0]; }
+        double b() { return val.data[1]; }
+        double br() { return val.data[2]; }
 
-        void toggleRed() {
-                if (red.isOn())
-                        red.off();
-                else
-                        red.on();
+        // void toggleBlue() {
+        //         if (blue.isOn())
+        //                 blue.off();
+        //         else
+        //                 blue.on();
+        // }
+
+        // void toggleRed() {
+        //         if (red.isOn())
+        //                 red.off();
+        //         else
+        //                 red.on();
+        // }
+
+        /*_____________________________________________________________________
+
+        Debugging
+
+        _____________________________________________________________________*/
+        void printConfig() {
+                for (auto c : config)
+                        printVec(c);
         }
 };
 

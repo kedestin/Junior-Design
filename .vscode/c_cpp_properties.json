@@ -9,7 +9,9 @@
                 "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
             ],
             "defines": [
-                "__AVR_ATmega2560__"
+                "__AVR_ATmega2560__",
+                 "ARDUINO=100",
+                 "__AVR_ENHANCED__"
             ],
             "forcedInclude": [
                 "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"

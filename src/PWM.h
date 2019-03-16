@@ -1,12 +1,12 @@
-void setup() {
-        pinMode(13, OUTPUT);  // Set this pin as output
-
+#ifndef JD_PWM_H
+#define JD_PWM_H
+namespace JD {
+/**
+ * @brief Starter code given to output ~18.5kHz out of pin 5
+ *
+ */
+void setupPWM() {
         pinMode(5, OUTPUT);
-        pinMode(2, OUTPUT);
-
-        Serial.begin(9600);
-
-        // Serial1.begin(1200);
 
         TCCR3A = _BV(COM3A0) | _BV(COM3B0) | _BV(WGM30) | _BV(WGM31);
 
@@ -20,13 +20,6 @@ void setup() {
         // sets WGM as stated above; sets clock scaling to "divide by 8"
 
         OCR3A = 53;
-        // above sets the counter value at which register resets to 0x0000;
-
-        // generate 18.523 kHz when OCR3A=53 on Mega pin 5
-
-        // Serial.println(TCCR3A, BIN);Serial.println(TCCR3B, BIN);
 }
-
-void loop() {
-        // no code needed
-}
+}  // namespace JD
+#endif

@@ -5,10 +5,11 @@
 
 namespace JD {
 
-/*
- * Porting type_traits 
- *
- */ 
+/*_____________________________________________________________________________
+
+  Reimplementation of some <type_traits> meta functions missing from Arduino
+  libraries
+  ___________________________________________________________________________*/
 template <bool B, class T = void>
 struct enable_if {};
 
@@ -31,13 +32,14 @@ struct is_same : false_type {};
 template <class T>
 struct is_same<T, T> : true_type {};
 
-/*
- *
- * Vector Class
- *
+/*_____________________________________________________________________________
+
+  Vector
+  ___________________________________________________________________________*/
+
+/**
+ * @brief Abstraction of a size-dimensional vector
  */
-
-
 template <unsigned size>
 class Vector {
         static_assert(size != 0, "Cannot have a 0 dimensional vector");
@@ -61,12 +63,12 @@ public:
                               "Number of arguments must match vector size");
         }
 
-        Vector & operator=(const Vector& v){
-                if (this != &v){
+        Vector& operator=(const Vector& v) {
+                if (this != &v) {
                         for (int i = 0; i < size; i++)
                                 data[i] = v[i];
                 }
-                
+
                 return *this;
         }
 
@@ -81,6 +83,7 @@ public:
 
         Vector& normalize() {
                 Number_t m = norm();
+                // Zero vector is left unchanged
                 if (m != 0)
                         for (Number_t& i : data)
                                 i /= m;
@@ -102,6 +105,17 @@ public:
 
                 return true;
         }
+
+        constexpr const Number_t& operator[](unsigned ind) const {
+                return data[ind];
+        }
+
+        Number_t& operator[](unsigned ind) { return data[ind]; }
+
+        /*_____________________________________________________________________
+
+          Overload set for +,-,*,+=,-=,*=
+           __________________________________________________________________*/
 
         template <class T>
         typename enable_if<not is_same<T, Vector>::value, Vector&>::type
@@ -175,12 +189,6 @@ public:
         Vector&& operator*(const T& toAdd) && {
                 return static_cast<Vector&&>(*this *= toAdd);
         }
-
-        constexpr const Number_t& operator[](unsigned ind) const {
-                return data[ind];
-        }
-
-        Number_t& operator[](unsigned ind) { return data[ind]; }
 };
 }  // namespace JD
 #endif

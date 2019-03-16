@@ -43,20 +43,35 @@
 namespace JD {
 
 struct Calibration {
+        // Enum of values stored in EEPROM
+        // Each field is offset by the size of the previous one
         CUMULATIVE_ENUM(Offset, ADD_FIELD(ColorBlack, sizeof(Vector<3>)),
                         ADD_FIELD(ColorYellow, sizeof(Vector<3>)),
                         ADD_FIELD(ColorRed, sizeof(Vector<3>)),
                         ADD_FIELD(ColorBlue, sizeof(Vector<3>)));
 
-        // Todo add some error checking to make sure that
-        // sizeof(data) == size from ADD_FIELD
+
+        /**
+         * @brief Sets the requested callibration value in the EEPROM
+         * 
+         * @note  This function does no error checking. Be warying that the
+         *        of data is the same size as expected in the enum
+         * @param o     The enum identifier of  data
+         * @param data  The data to set
+         */
         template <class T>
         static void set(Offset o, const T& data) {
                 EEPROM.put(o, data);
         }
 
-        // Todo add some error checking to make sure that
-        // sizeof(data) == size from ADD_FIELD
+        /**
+         * @brief Gets the requested callibration value in the EEPROM
+         * 
+         * @note  This function does no error checking. Be warying that the
+         *        of data is the same size as expected in the enum
+         * @param o     The enum identifier of  data
+         * @param data  The data to get
+         */
         template <class T>
         static void get(Offset o, T& data) {
                 EEPROM.get(o, data);

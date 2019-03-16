@@ -5,6 +5,11 @@
 
 namespace JD {
 
+/**
+ * @brief Abstraction for a 2 wheel drive system
+ *        Expects that motors must be told to spin in opposite directions to go
+ *        forwards
+ */
 class DriveSystem {
 private:
         MotorConfig left;
@@ -16,6 +21,8 @@ private:
 public:
         // enum PINOUT { Motor1f = 2, Motor1b = 3, Motor2b = 4, Motor2f = 5 };
         enum Direction { LEFT, RIGHT };
+
+        
         constexpr DriveSystem()
             : left{2, 3, 255, 255}, right{4, 5, 255, 255} {}
 
@@ -23,6 +30,7 @@ public:
                               unsigned Motor2f, unsigned Motor2b)
             : left{Motor1f, Motor1b, 255, 255},
               right{Motor2f, Motor2b, 255, 255} {}
+
 
         void forwards(double val = 1) {
                  left.forwards(val);
@@ -34,10 +42,24 @@ public:
                 right.forwards(val);
         }
 
+
+        /**
+         * @brief Will turn with one wheel being center of rotation
+         * 
+         * @param d   Direction to turn
+         * @param val Speed to turn (0 to 1)
+         */
         void pivot(Direction d, double val = 1) {
                 (d == LEFT ? left : right).stop();
                 (d == LEFT ? right : left).forwards(val);
         }
+
+        /**
+         * @brief Will turn in place
+         * 
+         * @param d   Direction to turn
+         * @param val Speed to turn (0 to 1)
+         */
         void rotate(Direction d, double val = 1) {
                 if (d == RIGHT) {
                         left.forwards(val);
@@ -47,12 +69,25 @@ public:
                         right.backwards(val);
                 }
         }
-
+        
+        /**
+         * @brief Will turn using specified values for inner and outer motors
+         * 
+         * @param d     Direction to turn
+         * @param inner Speed for inner wheel (0 to 1)
+         * @param outer Speed for outer wheel (0 to 1)
+         */
         void turn(Direction d, double inner, double outer){
                 left.forwards((d == LEFT) ? inner : outer);
                 right.backwards((d == LEFT) ? outer : inner);
 
         }
+        /**
+         * @brief Will turn with a non zero radius, determined by speed
+         * 
+         * @param d   Direction to turn
+         * @param val Speed to turn (0 to 1)
+         */
         void turn(Direction d, double val = 1) {
                 (d == LEFT ? left : right).forwards(val / 2);
                 (d == LEFT ? right : left).forwards(val);
