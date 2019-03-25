@@ -24,13 +24,9 @@ public:
                 if (sending == 0)
                         return;
 
-                if (noisy)
-                        analogWrite(m_pin, 255 - 1.5 * random(0, 255));
-                else
-                        analogWrite(m_pin, 255);
-
+                
                 if (start + sending < millis()) {
-                        analogWrite(m_pin, LOW);
+                        digitalWrite(m_pin, LOW);
                         reset();
                 }
         }
@@ -45,6 +41,7 @@ public:
                 start   = millis();
                 sending = time_ms;
                 noisy   = noise;
+                digitalWrite(m_pin, HIGH);
         }
 
         /**

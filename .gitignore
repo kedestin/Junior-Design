@@ -2,3 +2,4 @@ assets/*
 tex*
 build/*
 a.out
+.vscode/ipch/*

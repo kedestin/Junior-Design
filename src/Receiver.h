@@ -89,23 +89,23 @@ public:
                 // Reading is more accurate with < 10ms samplePeriod
                 if (millis() - lastUpdated > samplePeriod) {
                         Status currStatus = getStatus();
-                        // switch (currStatus) {
-                                // case Status::end: Serial.println("end"); break;
-                                // case Status::ending:
-                                //         Serial.println("ending");
-                                //         break;
-                                // case Status::start:
-                                //         Serial.println("start");
-                                //         break;
-                                // case Status::receiving:
-                                //         Serial.println("receiving");
-                                //         break;
-                                // case Status::none:
-                                //         break;
-                                //         Serial.println("none");
-                                //         break;
-                                // default: Serial.println("error"); break;
-                        // }
+                        switch (currStatus) {
+                                case Status::end: Serial.println("end"); break;
+                                case Status::ending:
+                                        Serial.println("ending");
+                                        break;
+                                case Status::start:
+                                        Serial.println("start");
+                                        break;
+                                case Status::receiving:
+                                        Serial.println("receiving");
+                                        break;
+                                case Status::none:
+                                        break;
+                                        Serial.println("none");
+                                        break;
+                                default: Serial.println("error"); break;
+                        }
                         if (currStatus == Status::receiving ||
                             currStatus == Status::start ||
                             currStatus == Status::ending) {

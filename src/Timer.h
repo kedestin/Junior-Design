@@ -35,7 +35,7 @@ public:
 
         bool          isRunning  = false;
         unsigned long finishTime = 0;
-};  // namespace JD
+};
 
 }  // namespace JD
 

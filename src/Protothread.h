@@ -31,7 +31,7 @@ public:
 protected:
         // "Pointer to thread function for optional constructor"
         protothread_t _thread;
-        
+
         // "Local continuation"
         // "Stores the location to resume thread"
         lc_t _lc;
@@ -72,7 +72,7 @@ public:
         }
 
         /**
-         * @brief Runs the thread
+         * @brief Runs the thread       
          *
          */
         void run() {
