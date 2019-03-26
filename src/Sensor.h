@@ -10,7 +10,9 @@ private:
 
 public:
         enum READ_BEHAVIOR { force, cache };
-        constexpr Sensor(uint8_t pin) : Peripheral(pin), val(0) {}
+        Sensor(uint8_t pin) : Peripheral(pin), val(0) {
+                pinMode(m_pin, INPUT);
+        }
         void update() override { val = analogRead(m_pin); }
 
         int read(READ_BEHAVIOR c = cache) {

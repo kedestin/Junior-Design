@@ -11,7 +11,9 @@ namespace JD {
  */
 class Transmitter : public Peripheral {
 public:
-        Transmitter(uint8_t pin) : Peripheral(pin) {}
+        Transmitter(uint8_t pin) : Peripheral(pin) {
+                pinMode(m_pin, OUTPUT);
+        }
 
         /**
          * @brief Will output signal if transmitter should be outputing a 
