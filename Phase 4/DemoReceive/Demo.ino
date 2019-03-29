@@ -47,28 +47,4 @@ void loop() {
                         break;
                 default: break;
         }
-
-        // PT_BEGIN();
-
-        // msgDuration = times[micros() % num_times];
-        // switch (msgDuration) {
-        //         case 200: Serial.println("Sending 200"); break;
-        //         case 300: Serial.println("Sending 300"); break;
-        //         case 400: Serial.println("Sending 400"); break;
-        //         case 500: Serial.println("Sending 500"); break;
-        //         default: Serial.println("Sending none"); break;
-        // }
-
-        // speaker.send(msgDuration, false); 
-        
-        // // digitalWrite(22, HIGH);
-        // // delay(msgDuration);
-        // // digitalWrite(22, LOW);
-        // timer.start(2000);
-        // PT_WAIT_UNTIL(timer.isFinished());
-        // PT_END();
-
-
-
-        // PT_RESTART();
 }
