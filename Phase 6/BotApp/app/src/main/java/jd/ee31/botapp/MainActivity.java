@@ -16,17 +16,25 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     private BTConnection btConn;
     private BluetoothSocket btSock;
-    private InputStream inStream;
-    private OutputStream outStream;
+    public InputStream inStream;
+    public OutputStream outStream;
+    public ArrayList<String> pendingMsgs;
     SensorFragment sens_frag;
     InstructionFragment inst_frag;
     NotificationFragment note_frag;
+
+    public String gear, currColor, speed, magField, prox;
+
+
 
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -66,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         btConn = new BTConnection();
+        pendingMsgs = new ArrayList<String>();
 
         do {
             btConn.initBTConn();
