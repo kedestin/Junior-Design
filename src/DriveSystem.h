@@ -2,6 +2,8 @@
 #define JUNIOR_DESIGN_DRIVE_SYSTEM
 
 #include "MotorInterface.h"
+#include "Led.h"
+#include "SevenSegment.h"
 
 namespace JD {
 
@@ -15,8 +17,10 @@ private:
         MotorConfig left;
         MotorConfig right;
 
-        double state1 = 0.0;
-        double state2 = 0.0;
+        // 0 if stopped
+        // negative if going backwards
+        // positive if going forwards
+        double currVal = 0;
 
 public:
         // enum PINOUT { Motor1f = 2, Motor1b = 3, Motor2b = 4, Motor2f = 5 };
@@ -35,11 +39,19 @@ public:
         void forwards(double val = 1) {
                  left.forwards(val);
                 right.backwards(val);
+                currVal = val;
+                // update speedometer
+                // update gearshifter
+        }
+        void stop(){
+                forwards(0);
+                currVal = 0;
         }
 
         void backwards(double val = 1) {
                 left.backwards(val);
                 right.forwards(val);
+                currVal = -val;
         }
 
 
@@ -52,6 +64,8 @@ public:
         void pivot(Direction d, double val = 1) {
                 (d == LEFT ? left : right).stop();
                 (d == LEFT ? right : left).forwards(val);
+        
+                currVal = val;
         }
 
         /**
@@ -68,6 +82,7 @@ public:
                         left.backwards(val);
                         right.backwards(val);
                 }
+                currVal = val;
         }
         
         /**
@@ -80,7 +95,7 @@ public:
         void turn(Direction d, double inner, double outer){
                 left.forwards((d == LEFT) ? inner : outer);
                 right.backwards((d == LEFT) ? outer : inner);
-
+                currVal = outer;
         }
         /**
          * @brief Will turn with a non zero radius, determined by speed
@@ -91,6 +106,11 @@ public:
         void turn(Direction d, double val = 1) {
                 (d == LEFT ? left : right).forwards(val / 2);
                 (d == LEFT ? right : left).forwards(val);
+                currVal = val;
+        }
+
+        double getSpeed() const {
+                return currVal;
         }
 };
 }  // namespace JD

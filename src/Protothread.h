@@ -18,6 +18,10 @@
  *     -  http://dunkels.com/adam/pt/
  *
  *  * C style macros to actually write a protothread function
+ * 
+ * tldr: Protothreads are basically functions written within a switch
+ * statement, where the switch variable is a line number (__LINE__) that is
+ * stored between function calls 
  */
 namespace JD {
 class Protothread {

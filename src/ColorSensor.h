@@ -12,7 +12,7 @@ namespace JD {
 
 static void printVec(const JD::Vector<3>& d);
 
-class ColorSensor : public Peripheral {
+class ColorSensor : public Peripheral<1> {
 public:
         enum Color { Black, Blue, Red, Yellow };
         using RawData = Vector<3>;

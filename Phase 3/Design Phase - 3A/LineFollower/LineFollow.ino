@@ -9,7 +9,7 @@ void            setup() {
         ds.forwards(1);
 }
 
-JD::Peripheral* peripherals[] = {&cs};
+JD::Updateable* peripherals[] = {&cs};
 
 template <class T>
 const T& minimum(const T& a) {

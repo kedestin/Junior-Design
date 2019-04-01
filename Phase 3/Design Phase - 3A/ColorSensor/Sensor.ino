@@ -1,12 +1,12 @@
 #include "src/Led.h"
 #include "src/Sensor.h"
-
+#include "src/Updateable.h"
 #include "src/ColorSensor.h"
 // JD::LED red_led;
 // JD::LED blue_led(12);
 JD::ColorSensor cs(53, 51, A15);
 
-JD::Peripheral* peripherals[] = {&cs};  // &phototransistor};
+JD::Updateable* peripherals[] = {&cs};  // &phototransistor};
 
 void setup() {
         Serial.begin(115200);

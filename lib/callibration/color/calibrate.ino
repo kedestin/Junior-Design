@@ -11,7 +11,7 @@ JD::LED indicator(LED_BUILTIN);
 JD::ColorSensor cs(53, 51, A15);
 JD::Sensor      hall(A14);
 
-JD::Peripheral* peripherals[] = {&cs, &hall, &indicator};
+JD::Updateable* peripherals[] = {&cs, &hall, &indicator};
 
 
 void setup() {

@@ -10,7 +10,7 @@ JD::LED         green(LED_BUILTIN);
 JD::Receiver    mic(A14);
 JD::Transmitter speaker(22);
 
-JD::Peripheral* peripherals[] = {&green, &mic, &speaker};
+JD::Updateable* peripherals[] = {&green, &mic, &speaker};
 
 void setup() {
         JD::setupPWM();

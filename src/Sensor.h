@@ -4,7 +4,7 @@
 #include "Peripheral.h"
 namespace JD {
 
-class Sensor : public Peripheral {
+class Sensor : public Peripheral<1> {
 private:
         int val;
 

@@ -9,7 +9,7 @@ namespace JD {
  * @brief Abstraction for transmitter
  * 
  */
-class Transmitter : public Peripheral {
+class Transmitter : public Peripheral<1> {
 public:
         Transmitter(uint8_t pin) : Peripheral(pin) {
                 pinMode(m_pin, OUTPUT);

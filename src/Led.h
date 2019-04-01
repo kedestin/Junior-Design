@@ -7,7 +7,7 @@ namespace JD {
  * @brief An LED abstraction
  * 
  */
-class LED : public Peripheral {
+class LED : public Peripheral<1> {
 private:
         typedef void (*LEDUpdateFunction)(LED&);
 
@@ -161,7 +161,7 @@ public:
          * @param[in]  frequency    The frequency
          * @param[in]  duration_ms  The duration milliseconds
          */
-        void blink(double frequency, long unsigned duration_ms) {
+        void blink(double frequency, long unsigned duration_ms = 1000) {
                 blink_frequency = frequency;
 
                 auto start =
