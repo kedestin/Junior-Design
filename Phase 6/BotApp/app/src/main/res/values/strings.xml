@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">BotApp</string>
+    <string name="title_sensor">Sensors</string>
+    <string name="title_inst">Instructions</string>
+    <string name="title_notifications">Notifications</string>
+</resources>
