@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +16,7 @@ public class SensorFragment extends Fragment {
     private InputStream inStream;
     private OutputStream outStream;
     private ArrayList<String> pendingMsgs;
+    TextView tvGearVal, tvSpeedVal, tvColorVal, tvProxVal, tvMagVal;
 
 
     public static SensorFragment newInstance() {
@@ -30,9 +32,14 @@ public class SensorFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                         Bundle savedInstanceState) {
-        View sens_view = inflater.inflate(R.layout.sens_activity, container, false);
+        View sens_view = inflater.inflate(R.layout.activity_sens, container, false);
 
         /* Set view elements */
+        tvColorVal = sens_view.findViewById(R.id.tvColorVal);
+        tvGearVal = sens_view.findViewById(R.id.tvGearVal);
+        tvMagVal = sens_view.findViewById(R.id.tvMagVal);
+        tvProxVal = sens_view.findViewById(R.id.tvProxVal);
+        tvSpeedVal = sens_view.findViewById(R.id.tvSpeedVal);
 
         init_sensor_values();
         return sens_view;
@@ -54,13 +61,13 @@ public class SensorFragment extends Fragment {
                         ((MainActivity) getActivity()).speed = msg.substring(6);
                         break;
                     case "pro":
-                        ((MainActivity) getActivity()).speed = msg.substring(6);
+                        ((MainActivity) getActivity()).prox = msg.substring(6);
                         break;
                     case "mag":
-                        ((MainActivity) getActivity()).speed = msg.substring(6);
+                        ((MainActivity) getActivity()).magField = msg.substring(6);
                         break;
                     case "gea":
-                        ((MainActivity) getActivity()).speed = msg.substring(6);
+                        ((MainActivity) getActivity()).gear = msg.substring(6);
                         break;
                 }
                 pendingMsgs.remove(msg);

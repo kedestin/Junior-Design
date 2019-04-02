@@ -18,7 +18,7 @@ public class InstructionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                         Bundle savedInstanceState) {
-        View inst_view = inflater.inflate(R.layout.inst_activity, container, false);
+        View inst_view = inflater.inflate(R.layout.activity_inst, container, false);
 
         /* Set view elements */
 
