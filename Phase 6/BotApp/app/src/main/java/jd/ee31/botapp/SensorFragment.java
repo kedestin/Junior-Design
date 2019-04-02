@@ -50,8 +50,7 @@ public class SensorFragment extends Fragment {
         outStream = ((MainActivity) getActivity()).outStream;
         pendingMsgs = ((MainActivity) getActivity()).pendingMsgs;
 
-        for (String msg : pendingMsgs) {
-            if (msg.substring(0,3).equals("Sen")) {
+        for (String msg : pendingMsgs) b (msg.substring(0,3).equals("Sen")) {
                 String sens = msg.substring(3,6);
                 switch (sens) {
                     case "col":
