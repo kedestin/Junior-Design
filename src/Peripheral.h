@@ -19,7 +19,7 @@ protected:
 
         template <class... T>
         constexpr Peripheral(T... args)
-            : m_pin{args...}, onUpdate(nullptr), subscribedAt(0) {
+            : m_pin{args...}, onUpdate(nullptr), subscribedAt(0U) {
                 static_assert(sizeof...(args) == numPins,
                               "Number of constructor arguments must match "
                               "number of pins\n");

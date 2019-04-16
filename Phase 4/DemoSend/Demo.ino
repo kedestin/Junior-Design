@@ -8,16 +8,18 @@
 
 JD::LED         green(LED_BUILTIN);
 JD::Receiver    mic(A14);
-JD::Transmitter speaker(22);
+JD::Transmitter speaker(2);
 
 JD::Updateable* peripherals[] = {&green, &mic, &speaker};
 
 void setup() {
         JD::setupPWM();
         Serial.begin(115200);
+        green.off();
 }
 
 void loop() {
+
         for (auto p : peripherals)
                 p->update();
 

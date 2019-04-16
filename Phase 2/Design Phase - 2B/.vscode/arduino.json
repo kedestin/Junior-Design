@@ -1,7 +1,0 @@
-{
-    "port": "COM3",
-    "board": "arduino:avr:mega",
-    "configuration": "cpu=atmega2560",
-    "programmer": "AVRISP mkII",
-    "sketch": "MotorTest.ino"
-}

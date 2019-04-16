@@ -18,14 +18,18 @@ public:
             : speedometer(l), gearshifter(gs), drivesystem(ds) {}
 
         void update() {
-                speedometer.on(abs(drivesystem.getSpeed()));
+                speedometer.on(drivesystem.getSpeed());
 
-                if (drivesystem.getSpeed() > 0)
+                if (drivesystem.isForwards())
                         gearshifter.display('d');
-                else if (drivesystem.getSpeed() < 0)
+                else if (drivesystem.isBackwards())
                         gearshifter.display('r');
-                else
+                else if (drivesystem.isStopped())
                         gearshifter.display('n');
+        }
+
+        void gearshifterPark(){
+                gearshifter.display('p');
         }
 };
 }  // namespace JD

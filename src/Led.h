@@ -74,7 +74,7 @@ private:
                 long unsigned curr        = millis();
                 if (curr > led.blink_end) {
                         led.off();
-                        led.reset();
+                        // led.reset(); Remove if something breaks
                         return;
                 }
 
@@ -107,6 +107,7 @@ public:
         void off() {
                 curr = 0;
                 analogWrite(m_pin, curr);
+                reset(); // Remove if somethig breaks
         }
         void reset(){
                 unsubscribe();

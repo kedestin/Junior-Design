@@ -48,7 +48,9 @@ struct Calibration {
         CUMULATIVE_ENUM(Offset, ADD_FIELD(ColorBlack, sizeof(Vector<3>)),
                         ADD_FIELD(ColorYellow, sizeof(Vector<3>)),
                         ADD_FIELD(ColorRed, sizeof(Vector<3>)),
-                        ADD_FIELD(ColorBlue, sizeof(Vector<3>)));
+                        ADD_FIELD(ColorBlue, sizeof(Vector<3>)),
+                        ADD_FIELD(rotate90AtFull_ms, sizeof(unsigned long)),
+                        ADD_FIELD(driveAt_1_25_inch_s, sizeof(double)));
 
 
         /**

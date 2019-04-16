@@ -8,7 +8,7 @@
 #include "src/Timer.h"
 #include "src/Transmitter.h"
 
-JD::Switch<1>   sw(-1);
+JD::Switch<1>   sw(-1), halleffect(-1);
 JD::DriveSystem ds(-1, -1, -1, -1);
 JD::Transmitter speaker(-1);
 JD::Receiver    mic(-1);
@@ -87,7 +87,7 @@ void bot1() {
 
         // Bot  1  makes  a 90° right turn. The  bot will  be  judged  how
         // tight a  90° right turn  it  makes
-        static_assert(false, "Must make a 90 degree right turn");
+        ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
         ds.forwards();
 
         PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Yellow);
@@ -96,7 +96,8 @@ void bot1() {
         static_assert(false, "Honk twice");
         green.off();
         // When Bot  1 makes the right turn it follows  the  yellow  path.
-        static_assert(false, "Make a 90 degree right turn");
+
+        ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
         static_assert(false, "Follow yellow path until detects pedestrian");
 
         // When Bot 1 detects  the  policeman  (magnetic  field) it  beeps  it
@@ -105,12 +106,13 @@ void bot1() {
         static_assert(false, "Honk twice");
         static_assert(false, "Make a 90 degree left turn");
 
+
         // When Bot 1 detects the redpath it illuminates a red LED, makes a
         // 90° left turn traveling along the redpath until it detects the
         // pedestrian.
         ds.forwards();
         PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Yellow);
-        static_assert(false, "Make a 90 degree left turn");
+        ds.rotateDeg(JD::DriveSystem::LEFT, 90);
         static_assert(false, "Follow red path until detects pedestrian");
 
         // When it detects the pedestrian (magnetic field), it must
@@ -135,7 +137,7 @@ void bot1() {
 
         // Bot 1 rotates 90°to the left, stopping in the vicinity of the end
         // red path and the spot on the wall where it collided
-        static_assert(false, "Make a 90 degree left turn");
+        ds.rotateDeg(JD::DriveSystem::LEFT, 90);
 
         // comes to a full stop and illuminates blue and red LEDs flashing them
         // three times

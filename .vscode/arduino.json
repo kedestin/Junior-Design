@@ -1,8 +1,7 @@
 {
-    "port": "COM4",
-    "board": "arduino:avr:mega",
-    "configuration": "cpu=atmega2560",
-    "programmer": "AVRISP mkII",
-    "sketch": "FinalDemo\\Challenge2\\challenge2.ino",
-    "output": "build"
+        "output": "../build",
+        "sketch": "FinalDemo\\Challenge3\\challenge3.ino",
+        "board": "arduino:avr:mega",
+        "configuration": "cpu=atmega2560",
+        "port": "COM3"
 }
