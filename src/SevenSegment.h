@@ -46,13 +46,14 @@ private:
          * @param packed A bit-packed version of segments to turn on and off
          */
         void segments(uint8_t packed) {
-                for (unsigned i = 0; i < sizeof(m_pin) / sizeof(m_pin[0]); i++) {
+                for (unsigned i = 0; i < sizeof(m_pin) / sizeof(m_pin[0]);
+                     i++) {
                         digitalWrite(m_pin[i], packed & (1 << i) ? HIGH : LOW);
                 }
         }
 
 public:
-        SevenSegment() : Peripheral(-1, -1, -1, -1, -1, -1, -1) {}
+        SevenSegment() : Peripheral(0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U) {}
         SevenSegment(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e,
                      uint8_t f, uint8_t g, uint8_t dp)
             : Peripheral(a, b, c, d, e, f, g, dp) {
@@ -67,10 +68,12 @@ public:
                         // Reverse
                         case 'r': segments(E | G); break;
                         // Stopped, but will continue
-                        case 'n': segments(A | C | D | E | G); break;
+                        case 'n': segments(C | E | G); break;
                         // Forwards
-                        case 'd': segments(C | E | G); break;
-                        default: segments(A | B | C | E | F | G | DP); break;
+                        case 'd': segments(B | C | D | E | G); break;
+                        case '1': segments(B | C); break;
+                        case '2': segments(A | B | G | E | D); break;
+                        default: segments(A | B | C | D | E | F | G); break;
                 }
         }
 

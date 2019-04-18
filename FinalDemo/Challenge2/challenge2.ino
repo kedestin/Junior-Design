@@ -2,13 +2,14 @@
 #include "src/Protothread.h"
 #include "src/Receiver.h"
 #include "src/Switch.h"
+#include "src/Timer.h"
 #include "src/Transmitter.h"
 #include "src/Updateable.h"
 JD::Transmitter speaker(-1);
 JD::Receiver    mic(-1);
 JD::DriveSystem ds(-1, -1, -1, -1);
 JD::Switch<1>   sw(-1);
-JD::Updateable* peripherals[] = {&mic, &speaker, &sw};
+JD::Updateable* peripherals[] = {&mic, &speaker, &sw, &ds};
 
 void setup() {}
 
@@ -26,27 +27,55 @@ void runTest() {
         // be measured;the closer they are to each other the better the
         // evaluation score.The objective is to make this distance as closeto
         // zero as possible.
-        static_assert(false, "Move forwards 12 inches");
-        static_assert(false, "Rotate 180 degrees");
-        static_assert(false, "Move backwards 3 inches");
-        static_assert(false, "Rotate left");
-        static_assert(false, "Rotate right");
-        static_assert(false, "Rotate right");
-        static_assert(false, "Rotate right");
 
+        double _1_25_in_per_s;
+        double distance_in;
+        JD::Calibration::get(JD::Calibration::driveAt_1_25_inch_s,
+                             _1_25_in_per_s);
+        static JD::Timer timer;
+        
+        PT_BEGIN();
+        
+        // Move forwards 12 inches
+        double distance_in = 12;
+        timer.start(distance_in / 1.25 * 1000);
+        ds.forwards(_1_25_in_per_s);
+        PT_WAIT_UNTIL(timer.isFinished());
+
+        // Rotate 180 degrees
+        ds.rotateDeg(JD::DriveSystem::RIGHT, 180);
+        
+        // Move backwards 3 inches
+        double distance_in = 12;
+        timer.start(distance_in / 1.25 * 1000);
+        ds.forwards(_1_25_in_per_s);
+        PT_WAIT_UNTIL(timer.isFinished());
+
+        // Rotate 90 degrees left
+        ds.rotateDeg(JD::DriveSystem::LEFT, 90);
+        
+        // Rotate 90 degrees right
+        ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
+        
+        // Rotate 90 degrees right
+        ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
+        
+        // Rotate 90 degrees right
+        ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
+
+        PT_END();
 }
 
 void loop() {
         for (auto p : peripherals)
                 p->update();
 
-        if (sw.read() == 0){
+        if (sw.read() == 0) {
                 PT_BEGIN();
                 runTest();
                 speaker.send(500);
                 PT_END();
-        }
-        else {
+        } else {
                 PT_BEGIN();
                 PT_WAIT_UNTIL(mic.receivedMsg() == JD::Receiver::msg500);
                 runTest();

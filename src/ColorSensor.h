@@ -71,6 +71,10 @@ public:
                 delay(3);
                 br  = phototransistor.read(Sensor::force);
                 val = {r, b, br};
+                
+                // Added after confirmed working
+                blue.off();
+                red.off();
                 // Serial.print("r: ");
                 // Serial.print(r);
                 // Serial.print(" b: ");
