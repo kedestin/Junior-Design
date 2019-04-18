@@ -44,7 +44,7 @@ public class InstructionFragment extends Fragment {
         return inst_view;
     }
 
-    public void sendMsg(View v) {
+    public void sendMsgActual() {
         String msg = "";
         switch (dropOp.getSelectedItem().toString()) {
             case "Forward":

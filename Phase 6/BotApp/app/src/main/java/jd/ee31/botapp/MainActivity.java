@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothSocket btSock = null;
     public InputStream inStream;
     public OutputStream outStream;
-    public ArrayList<String> pendingMsgs;
+    public ArrayList<String> pendingMsgs = new ArrayList<String>();
     SensorFragment sens_frag;
     InstructionFragment inst_frag;
     NotificationFragment note_frag;
@@ -50,17 +51,13 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothDevice arduinoConn = null;
     InputListener task;
 
-    public String gear, currColor, speed, magField, prox;
-    public ArrayList<String> last10Notes;
+    public String gear = "Waiting...", currColor = "Waiting...", speed = "Waiting...", magField = "No", prox = "Waiting...";
+    public ArrayList<String> last10Notes = new ArrayList<String>();
 
-    /*private BroadcastReceiver receiver = new BroadcastReceiver() {
+    /*public class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String msgs = intent.getStringExtra("msgs");
-            for (int i = 0; i < msgs.length() / 3; i++) {
-                pendingMsgs.add(msgs.substring(3*i, (3*i) + 3));
-            }
-
+            Log.d("got it", "yuh");
             switch (frame) {
                 case 0:
                     sens_frag.update_sensor_values();
@@ -72,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         }
     };*/
 
+    //MyBroadcastReceiver rec = new MyBroadcastReceiver();
+
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -80,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Fragment selectedFrag = null;
-            Log.d("ugh", "Before switch");
             switch (item.getItemId()) {
                 case R.id.navigation_sensor:
                     sens_frag = SensorFragment.newInstance();
@@ -98,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
                     frame = 2;
                     break;
             }
-            Log.d("UGH", "After switch");
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.frame_layout, selectedFrag);
             transaction.commit();
@@ -119,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.frame_layout, sens_frag);
         transaction.commit();
 
-        Log.d("whoops", "yikes");
         pendingMsgs = new ArrayList<String>();
         last10Notes = new ArrayList<String>();
 
@@ -135,19 +131,20 @@ public class MainActivity extends AppCompatActivity {
         task.execute(this);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        task.cancel(true);
-    }
+    private class InputListener extends AsyncTask<MainActivity, Void, Void> {
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        task.cancel(true);
-    }
-
-    private static class InputListener extends AsyncTask<MainActivity, Void, Void> {
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            switch (frame) {
+                case 0:
+                    sens_frag.update_sensor_values();
+                    break;
+                case 2:
+                    note_frag.handle_pending();
+                    break;
+            }
+        }
 
         @Override
         public Void doInBackground(MainActivity... act) {
@@ -158,33 +155,35 @@ public class MainActivity extends AppCompatActivity {
             NotificationFragment note_frag = act[0].note_frag;
 
             while (true) {
-                Log.d("in loop", "in loop");
                 try {
-                    if (inStream == null) continue;
-                    if (inStream.available() >= 3) {
-                        byte[] msg = new byte[3];
-                        inStream.read(msg, 0, 3);
-                        pendingMsgs.add(new String(msg));
-                        switch (frame) {
-                            case 0:
-                                sens_frag.update_sensor_values();
-                                break;
-                            case 2:
-                                note_frag.handle_pending();
-                                break;
-                        }
-                    } else {
+                    if (inStream == null) {
                         try {
                             TimeUnit.MILLISECONDS.sleep(100);
                         } catch (InterruptedException e) {
-                            Log.d("Interrupted", "Sad");
+                        }
+                        continue;
+                    }
+                    if (inStream.available() >= 5) {
+                        byte[] msg = new byte[5];
+                        inStream.read(msg, 0, 5);
+                        pendingMsgs.add(new String(msg));
+                        Intent newIntent = new Intent();
+                        publishProgress();
+                    } else if (inStream.available() == 2) {
+                        byte[] msg = new byte[2];
+                        inStream.read(msg, 0, 2);
+                    }
+                    else {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(100);
+                        } catch (InterruptedException e) {
                         }
                     }
                 } catch (IOException e) {
-                    Log.d("oops", "oops?");
                 }
             }
         }
+
     }
 
 
@@ -199,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
         BluetoothAdapter btA = BluetoothAdapter.getDefaultAdapter();
 
         if (btA == null) {
-            Log.d("oh", "shit");
             Toast.makeText(this, "Bluetooth unavailable", Toast.LENGTH_SHORT).show();
             return;
         } else if (!btA.isEnabled()) {
@@ -207,12 +205,9 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(startBT, 1);
         } else {
             Set<BluetoothDevice> pairedDevices = btA.getBondedDevices();
-            Log.d("ruh", "roh");
             for (BluetoothDevice bt : pairedDevices) {
-                Log.d("woo!", bt.getName());
                 if (bt.getName().equals("HC-05")) {
                     arduinoConn = bt;
-                    Log.d("WOOO!", "WOOT");
                 }
             }
         }
@@ -226,7 +221,6 @@ public class MainActivity extends AppCompatActivity {
                 outStream = btSock.getOutputStream();
             } catch (IOException e){
                 Toast.makeText(this, "Encountered error connecting to BT Device.", Toast.LENGTH_SHORT).show();
-                Log.d("good.", "good.");
             } catch (NullPointerException e) {
                 Toast.makeText(this, "Encountered error connecting to BT Device.", Toast.LENGTH_SHORT).show();
             }
@@ -234,4 +228,7 @@ public class MainActivity extends AppCompatActivity {
         btA.cancelDiscovery();
     }
 
+    public void sendMsg(View view) {
+        inst_frag.sendMsgActual();
+    }
 }

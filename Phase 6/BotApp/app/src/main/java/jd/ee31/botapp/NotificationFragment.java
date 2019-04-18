@@ -2,6 +2,7 @@ package jd.ee31.botapp;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class NotificationFragment extends Fragment {
     private InputStream inStream;
@@ -45,10 +47,11 @@ public class NotificationFragment extends Fragment {
         pendingMsgs = ((MainActivity) getActivity()).pendingMsgs;
         last10Notes = ((MainActivity) getActivity()).last10Notes;
 
-        for (String msg : pendingMsgs) {
+        for (Iterator<String> iterator = pendingMsgs.iterator(); ((Iterator) iterator).hasNext();) {
+            String msg = iterator.next();
             if (msg.substring(0,1).equals("m")) {
                 String msgType = msg.substring(1,2);
-                switch (msg) {
+                switch (msgType) {
                     case "c":
                         switch (msg.substring(2)) {
                             case "001":
@@ -65,23 +68,23 @@ public class NotificationFragment extends Fragment {
                     case "r":
                         last10Notes.add("Received " + msg.substring(2) + "ms message\n");
                         break;
-                    case "s":
+                    case "t":
                         last10Notes.add("Sent " + msg.substring(2) + "ms message\n");
                         break;
                 }
-                if (last10Notes.size() > 10) last10Notes.remove(0);
-                pendingMsgs.remove(msg);
+                if (last10Notes.size() > 20) last10Notes.remove(0);
             }
         }
+        pendingMsgs.remove(pendingMsgs.contains("m"));
+        print_messages();
     }
 
     private void print_messages() {
+        String output = "";
         for (String msg : last10Notes) {
-            String former = (String)msgTV.getText();
-            former += '\n';
-            former += msg;
-            msgTV.setText(former);
+            output += msg;
         }
+        msgTV.setText(output);
     }
 
 }

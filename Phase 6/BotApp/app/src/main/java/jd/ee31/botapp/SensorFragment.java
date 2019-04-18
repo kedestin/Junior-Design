@@ -1,5 +1,6 @@
 package jd.ee31.botapp;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class SensorFragment extends Fragment {
 
@@ -46,7 +48,8 @@ public class SensorFragment extends Fragment {
     public void update_sensor_values() {
         pendingMsgs = ((MainActivity) getActivity()).pendingMsgs;
 
-        for (String msg : pendingMsgs) {
+        for (Iterator<String> iterator = pendingMsgs.iterator(); ((Iterator) iterator).hasNext();) {
+            String msg = iterator.next();
             if (msg.substring(0,1).equals("s")) {
                 String sens = msg.substring(1,2);
                 switch (sens) {
@@ -55,21 +58,65 @@ public class SensorFragment extends Fragment {
                         break;
                     case "s":
                         ((MainActivity) getActivity()).speed = msg.substring(2);
-                        tvSpeedVal.setText(((MainActivity) getActivity()).speed);
                         break;
                     case "p":
                         ((MainActivity) getActivity()).prox = msg.substring(2);
                         break;
-                    case "m":
+                    case "a":
                         ((MainActivity) getActivity()).magField = msg.substring(2);
                         break;
                     case "g":
                         ((MainActivity) getActivity()).gear = msg.substring(2);
                         break;
                 }
-                pendingMsgs.remove(msg);
             }
         }
-        
+        pendingMsgs.remove(pendingMsgs.contains("m"));
+        print_values();
+    }
+
+    private void print_values() {
+        tvSpeedVal.setText(((MainActivity) getActivity()).speed);
+        tvProxVal.setText(((MainActivity) getActivity()).prox);
+        switch (((MainActivity) getActivity()).magField) {
+            case "000":
+                tvMagVal.setText("No");
+                break;
+            case "111":
+                tvMagVal.setText("Yes!");
+                break;
+        }
+        switch (((MainActivity) getActivity()).currColor) {
+            case "000":
+                tvColorVal.setText("Black");
+                tvColorVal.setTextColor(Color.BLACK);
+                break;
+            case "001":
+                tvColorVal.setText("Blue");
+                tvColorVal.setTextColor(Color.BLUE);
+                break;
+            case "010":
+                tvColorVal.setText("Red");
+                tvColorVal.setTextColor(Color.RED);
+                break;
+            case "100":
+                tvColorVal.setText("Yellow");
+                tvColorVal.setTextColor(Color.YELLOW);
+                break;
+        }
+        switch (((MainActivity) getActivity()).gear) {
+            case "000":
+                tvGearVal.setText("Park");
+                break;
+            case "001":
+                tvGearVal.setText("Neutral");
+                break;
+            case "010":
+                tvGearVal.setText("Drive");
+                break;
+            case "100":
+                tvGearVal.setText("Reverse");
+                break;
+        }
     }
 }
