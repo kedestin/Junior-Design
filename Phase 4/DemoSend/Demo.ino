@@ -7,7 +7,7 @@
 #include "src/Timer.h"
 
 JD::LED         green(LED_BUILTIN);
-JD::Receiver    mic(A14);
+JD::Receiver    mic(A7);
 JD::Transmitter speaker(22);
 
 JD::Updateable* peripherals[] = {&green, &mic, &speaker};

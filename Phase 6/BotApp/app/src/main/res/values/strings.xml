@@ -3,4 +3,20 @@
     <string name="title_sensor">Sensors</string>
     <string name="title_inst">Instructions</string>
     <string name="title_notifications">Notifications</string>
+    <string-array name="dropOp">
+        <item>Forward</item>
+        <item>Reverse</item>
+        <item>Left</item>
+        <item>Right</item>
+        <item>Honk</item>
+        <item>Send</item>
+    </string-array>
+    <string-array name="dropDur">
+        <item>50ms</item>
+        <item>100ms</item>
+        <item>200ms</item>
+        <item>300ms</item>
+        <item>400ms</item>
+        <item>500ms</item>
+    </string-array>
 </resources>

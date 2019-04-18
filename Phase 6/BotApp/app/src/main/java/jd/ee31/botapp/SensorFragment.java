@@ -13,8 +13,6 @@ import java.util.ArrayList;
 
 public class SensorFragment extends Fragment {
 
-    private InputStream inStream;
-    private OutputStream outStream;
     private ArrayList<String> pendingMsgs;
     TextView tvGearVal, tvSpeedVal, tvColorVal, tvProxVal, tvMagVal;
 
@@ -41,32 +39,32 @@ public class SensorFragment extends Fragment {
         tvProxVal = sens_view.findViewById(R.id.tvProxVal);
         tvSpeedVal = sens_view.findViewById(R.id.tvSpeedVal);
 
-        init_sensor_values();
+        update_sensor_values();
         return sens_view;
     }
 
-    private void init_sensor_values() {
-        inStream = ((MainActivity) getActivity()).inStream;
-        outStream = ((MainActivity) getActivity()).outStream;
+    public void update_sensor_values() {
         pendingMsgs = ((MainActivity) getActivity()).pendingMsgs;
 
-        for (String msg : pendingMsgs) b (msg.substring(0,3).equals("Sen")) {
-                String sens = msg.substring(3,6);
+        for (String msg : pendingMsgs) {
+            if (msg.substring(0,1).equals("s")) {
+                String sens = msg.substring(1,2);
                 switch (sens) {
-                    case "col":
-                        ((MainActivity) getActivity()).currColor = msg.substring(6);
+                    case "c":
+                        ((MainActivity) getActivity()).currColor = msg.substring(2);
                         break;
-                    case "spd":
-                        ((MainActivity) getActivity()).speed = msg.substring(6);
+                    case "s":
+                        ((MainActivity) getActivity()).speed = msg.substring(2);
+                        tvSpeedVal.setText(((MainActivity) getActivity()).speed);
                         break;
-                    case "pro":
-                        ((MainActivity) getActivity()).prox = msg.substring(6);
+                    case "p":
+                        ((MainActivity) getActivity()).prox = msg.substring(2);
                         break;
-                    case "mag":
-                        ((MainActivity) getActivity()).magField = msg.substring(6);
+                    case "m":
+                        ((MainActivity) getActivity()).magField = msg.substring(2);
                         break;
-                    case "gea":
-                        ((MainActivity) getActivity()).gear = msg.substring(6);
+                    case "g":
+                        ((MainActivity) getActivity()).gear = msg.substring(2);
                         break;
                 }
                 pendingMsgs.remove(msg);

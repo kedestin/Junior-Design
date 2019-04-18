@@ -4,8 +4,11 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -13,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,12 +29,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BTConnection btConn;
     private BluetoothAdapter btA;
     private BluetoothSocket btSock = null;
     public InputStream inStream;
@@ -42,10 +46,31 @@ public class MainActivity extends AppCompatActivity {
     boolean permGranted = false;
     public BluetoothAdapter myBluetooth;
     public int connectionStatus = -1;
+    public int frame;
     public BluetoothDevice arduinoConn = null;
+    InputListener task;
 
     public String gear, currColor, speed, magField, prox;
     public ArrayList<String> last10Notes;
+
+    /*private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String msgs = intent.getStringExtra("msgs");
+            for (int i = 0; i < msgs.length() / 3; i++) {
+                pendingMsgs.add(msgs.substring(3*i, (3*i) + 3));
+            }
+
+            switch (frame) {
+                case 0:
+                    sens_frag.update_sensor_values();
+                    break;
+                case 2:
+                    note_frag.handle_pending();
+                    break;
+            }
+        }
+    };*/
 
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -60,14 +85,17 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_sensor:
                     sens_frag = SensorFragment.newInstance();
                     selectedFrag = sens_frag;
+                    frame = 0;
                     break;
                 case R.id.navigation_inst:
                     inst_frag = InstructionFragment.newInstance();
                     selectedFrag = inst_frag;
+                    frame = 1;
                     break;
                 case R.id.navigation_notifications:
                     note_frag = NotificationFragment.newInstance();
                     selectedFrag = note_frag;
+                    frame = 2;
                     break;
             }
             Log.d("UGH", "After switch");
@@ -92,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
 
         Log.d("whoops", "yikes");
-        btConn = new BTConnection();
         pendingMsgs = new ArrayList<String>();
         last10Notes = new ArrayList<String>();
 
@@ -104,7 +131,62 @@ public class MainActivity extends AppCompatActivity {
             bt_init();
         }
 
+        task = new InputListener();
+        task.execute(this);
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        task.cancel(true);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        task.cancel(true);
+    }
+
+    private static class InputListener extends AsyncTask<MainActivity, Void, Void> {
+
+        @Override
+        public Void doInBackground(MainActivity... act) {
+            InputStream inStream = act[0].inStream;
+            ArrayList<String> pendingMsgs = act[0].pendingMsgs;
+            int frame = act[0].frame;
+            SensorFragment sens_frag = act[0].sens_frag;
+            NotificationFragment note_frag = act[0].note_frag;
+
+            while (true) {
+                Log.d("in loop", "in loop");
+                try {
+                    if (inStream == null) continue;
+                    if (inStream.available() >= 3) {
+                        byte[] msg = new byte[3];
+                        inStream.read(msg, 0, 3);
+                        pendingMsgs.add(new String(msg));
+                        switch (frame) {
+                            case 0:
+                                sens_frag.update_sensor_values();
+                                break;
+                            case 2:
+                                note_frag.handle_pending();
+                                break;
+                        }
+                    } else {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(100);
+                        } catch (InterruptedException e) {
+                            Log.d("Interrupted", "Sad");
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.d("oops", "oops?");
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int a, String[] arr, int[] brr) {
@@ -119,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         if (btA == null) {
             Log.d("oh", "shit");
             Toast.makeText(this, "Bluetooth unavailable", Toast.LENGTH_SHORT).show();
+            return;
         } else if (!btA.isEnabled()) {
             Intent startBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(startBT, 1);
@@ -129,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("woo!", bt.getName());
                 if (bt.getName().equals("HC-05")) {
                     arduinoConn = bt;
+                    Log.d("WOOO!", "WOOT");
                 }
             }
         }
@@ -136,11 +220,14 @@ public class MainActivity extends AppCompatActivity {
             btSock = null;
             try {
                 btSock = arduinoConn.createInsecureRfcommSocketToServiceRecord(myUUID);
-                myBluetooth.cancelDiscovery();
+                btA.cancelDiscovery();
                 btSock.connect();
                 inStream = btSock.getInputStream();
                 outStream = btSock.getOutputStream();
             } catch (IOException e){
+                Toast.makeText(this, "Encountered error connecting to BT Device.", Toast.LENGTH_SHORT).show();
+                Log.d("good.", "good.");
+            } catch (NullPointerException e) {
                 Toast.makeText(this, "Encountered error connecting to BT Device.", Toast.LENGTH_SHORT).show();
             }
         }
