@@ -1,4 +1,4 @@
-# Pin-Outs
+# Pin-Outs (Untaped Bot)
 
 ## Dashboard
 
@@ -18,7 +18,7 @@
 * e - 49
 * d - 47
 * a - 53
-* b - 52 
+* b - 52
 * dp - No connection
 * c - 34
 
@@ -27,6 +27,7 @@
 * Red LED - 48
 * Green LED - 46
 * White LED - 44
+* Yellow LED - 2
 
 ### Horn
 
@@ -34,22 +35,39 @@
 
 ## Receiver
 
+* Mic Input - A7
 
 ## Transmitter
 
+* PWM Out - 5
+* Data Out - 30
+
 ## H-Bridge
+
+* Left Rear - 8
+* Left Forward - 10
+* Right Rear - 11
+* Right Forward - 9
 
 ## Sensor Board
 
-### Color Sensor 
+### Color Sensor
+
 * Red LED - 36
 * Blue LED - 37
+* Photodiode - A15
 
-### Hall Sensor 
+### Proximity Sensor
 
-## Indicator Light
+* Photodiode - A5
 
-### Front-Left 
+### Hall Sensor
+
+* Output - 39
+
+## Indicator Lights
+
+### Front-Left
 
 * White LED - 45
 
@@ -80,3 +98,7 @@
 ### Back
 
 * Limit Switch - 28
+
+## Bot 1 vs. Bot 2
+
+* Signal - 33
