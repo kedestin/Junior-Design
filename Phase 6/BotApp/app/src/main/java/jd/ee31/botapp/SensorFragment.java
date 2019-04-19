@@ -41,41 +41,10 @@ public class SensorFragment extends Fragment {
         tvProxVal = sens_view.findViewById(R.id.tvProxVal);
         tvSpeedVal = sens_view.findViewById(R.id.tvSpeedVal);
 
-        update_sensor_values();
         return sens_view;
     }
 
-    public void update_sensor_values() {
-        pendingMsgs = ((MainActivity) getActivity()).pendingMsgs;
-
-        for (Iterator<String> iterator = pendingMsgs.iterator(); ((Iterator) iterator).hasNext();) {
-            String msg = iterator.next();
-            if (msg.substring(0,1).equals("s")) {
-                String sens = msg.substring(1,2);
-                switch (sens) {
-                    case "c":
-                        ((MainActivity) getActivity()).currColor = msg.substring(2);
-                        break;
-                    case "s":
-                        ((MainActivity) getActivity()).speed = msg.substring(2);
-                        break;
-                    case "p":
-                        ((MainActivity) getActivity()).prox = msg.substring(2);
-                        break;
-                    case "a":
-                        ((MainActivity) getActivity()).magField = msg.substring(2);
-                        break;
-                    case "g":
-                        ((MainActivity) getActivity()).gear = msg.substring(2);
-                        break;
-                }
-            }
-        }
-        pendingMsgs.remove(pendingMsgs.contains("m"));
-        print_values();
-    }
-
-    private void print_values() {
+    public void print_values() {
         tvSpeedVal.setText(((MainActivity) getActivity()).speed);
         tvProxVal.setText(((MainActivity) getActivity()).prox);
         switch (((MainActivity) getActivity()).magField) {
@@ -119,4 +88,6 @@ public class SensorFragment extends Fragment {
                 break;
         }
     }
+
+
 }

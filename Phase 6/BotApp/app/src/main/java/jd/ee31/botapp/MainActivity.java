@@ -22,6 +22,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Iterator;
+import java.util.concurrent.Semaphore;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public int frame;
     public BluetoothDevice arduinoConn = null;
     InputListener task;
+    boolean locked = false;
+    static Semaphore lock = new Semaphore(1);
 
     public String gear = "Waiting...", currColor = "Waiting...", speed = "Waiting...", magField = "No", prox = "Waiting...";
     public ArrayList<String> last10Notes = new ArrayList<String>();
@@ -132,16 +137,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class InputListener extends AsyncTask<MainActivity, Void, Void> {
+        public void update_sensor_values(String msg) {
+            if (msg.substring(0,1).equals("s")) {
+                String sens = msg.substring(1, 2);
+                switch (sens) {
+                    case "c":
+                        currColor = msg.substring(2);
+                        break;
+                    case "d":
+                        speed = msg.substring(2);
+                        break;
+                    case "p":
+                        prox = msg.substring(2);
+                        break;
+                    case "a":
+                        magField = msg.substring(2);
+                        break;
+                    case "g":
+                        gear = msg.substring(2);
+                        break;
+                }
+            }
+        }
+
+        public void handle_pending(String msg) {
+            if (msg.substring(0,1).equals("m")) {
+                String msgType = msg.substring(1,2);
+                switch (msgType) {
+                    case "c":
+                        switch (msg.substring(2)) {
+                            case "001":
+                                last10Notes.add("Rear Bumper Collided with Object!\n");
+                                break;
+                            case "010":
+                                last10Notes.add("Left Front Bumper Collided with Object!\n");
+                                break;
+                            case "100":
+                                last10Notes.add("Right Front Bumper Collided with Object!\n");
+                                break;
+                        }
+                        break;
+                    case "r":
+                        last10Notes.add("Received " + msg.substring(2) + "ms message\n");
+                        break;
+                    case "t":
+                        last10Notes.add("Sent " + msg.substring(2) + "ms message\n");
+                        break;
+                }
+                if (last10Notes.size() > 20) last10Notes.remove(0);
+            }
+        }
 
         @Override
         protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
             switch (frame) {
                 case 0:
-                    sens_frag.update_sensor_values();
+                    sens_frag.print_values();
                     break;
                 case 2:
-                    note_frag.handle_pending();
+                    note_frag.print_messages();
                     break;
             }
         }
@@ -149,10 +203,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Void doInBackground(MainActivity... act) {
             InputStream inStream = act[0].inStream;
-            ArrayList<String> pendingMsgs = act[0].pendingMsgs;
             int frame = act[0].frame;
             SensorFragment sens_frag = act[0].sens_frag;
             NotificationFragment note_frag = act[0].note_frag;
+            ArrayList<String> localPending = new ArrayList<String>();
 
             while (true) {
                 try {
@@ -164,14 +218,22 @@ public class MainActivity extends AppCompatActivity {
                         continue;
                     }
                     if (inStream.available() >= 5) {
-                        byte[] msg = new byte[5];
-                        inStream.read(msg, 0, 5);
-                        pendingMsgs.add(new String(msg));
-                        Intent newIntent = new Intent();
+                        char firstChar = (char)inStream.read();
+                        while (firstChar != 's' && firstChar != 'm') {
+                            firstChar = (char)inStream.read();
+                        }
+                        byte[] msg = new byte[4];
+                        inStream.read(msg, 0, 4);
+                        String msgFinal = Character.toString(firstChar) + new String(msg);
+                        switch (frame) {
+                            case 0:
+                                update_sensor_values(msgFinal);
+                                break;
+                            case 1:
+                                handle_pending(msgFinal);
+                                break;
+                        }
                         publishProgress();
-                    } else if (inStream.available() == 2) {
-                        byte[] msg = new byte[2];
-                        inStream.read(msg, 0, 2);
                     }
                     else {
                         try {
@@ -179,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
                         } catch (InterruptedException e) {
                         }
                     }
+
                 } catch (IOException e) {
                 }
             }
