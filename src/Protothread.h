@@ -21,7 +21,8 @@
  * 
  * tldr: Protothreads are basically functions written within a switch
  * statement, where the switch variable is a line number (__LINE__) that is
- * stored between function calls 
+ * stored between function calls This allows a function to be re-entrant, as
+ * you can jump straight to a line number in a function. 
  */
 namespace JD {
 class Protothread {

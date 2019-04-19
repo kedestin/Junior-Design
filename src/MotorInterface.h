@@ -48,7 +48,6 @@ private:
         // Max voltage to apply backwards (0 to 255)
         const int maxBackwards;
 
-
         /**
          * @brief Drives the motor in requested direction at requested speed
          * 
@@ -56,11 +55,20 @@ private:
          * @param maxVolt  Maximum voltage to apply to motor (0 to 255)
          * @param forwards Whether should go forwards
          */
-        void drive(double val, int maxVolt, bool forwards) const {
+        void drive(double val, int maxVolt, bool goForwards) const {
                 val = (val > 1) ? 1 : (val < 0) ? 0 : val;
-
-                analogWrite((forwards) ? forward : backward, maxVolt * val);
-                analogWrite((forwards) ? backward : forward, 0);
+                // Serial.print('\n');
+                // Serial.print(__func__);
+                // Serial.print(" ");
+                // Serial.print(forward);
+                // Serial.print(' ');
+                // Serial.print(goForwards ? (maxVolt * val) : 0);
+                // Serial.print(" | ");
+                // Serial.print(backward);
+                // Serial.print(" ");
+                // Serial.println(goForwards ? 0 : (maxVolt * val));
+                analogWrite((goForwards) ? forward : backward, maxVolt * val);
+                analogWrite((goForwards) ? backward : forward, 0);
         }
 };
 

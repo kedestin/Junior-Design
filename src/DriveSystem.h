@@ -21,15 +21,25 @@ private:
         // negative if going backwards
         // positive if going forwards
         double        currLeft = 0, currRight = 0;
-        unsigned long response_ms = 0;  // Response time to get to target speed
         unsigned long endtime = 0, lastUpdated = 0;
         double        targetLeft = 0, targetRight = 0;
+#ifdef INTERPOLATE
+        unsigned long response_ms = 0;  // Response time to get to target speed
         void          rampUp(double left, double right) {
                 targetLeft  = left;
                 targetRight = right;
                 lastUpdated = millis();
                 endtime     = lastUpdated + response_ms;
         }
+#else
+        double maxSlope = 1;
+
+        void rampUp(double left, double right) {
+                targetLeft  = left;
+                targetRight = right;
+                lastUpdated = millis();
+        }
+#endif
         unsigned long timeToRotate90degAtFullSpeed;
         unsigned long rotateStopAt = 0;
 
@@ -42,6 +52,7 @@ public:
                                      timeToRotate90degAtFullSpeed);
         }
 
+#ifdef INTERPOLATE
         DriveSystem(unsigned Motor1f, unsigned Motor1b, unsigned Motor2f,
                     unsigned Motor2b, unsigned long r_time_ms = 0)
             : left{Motor1f, Motor1b, 255, 255},
@@ -50,7 +61,16 @@ public:
                 JD::Calibration::get(JD::Calibration::rotate90AtFull_ms,
                                      timeToRotate90degAtFullSpeed);
         }
-
+#else
+        DriveSystem(unsigned Motor1f, unsigned Motor1b, unsigned Motor2f,
+                    unsigned Motor2b, unsigned long zeroToOne = 1)
+            : left{Motor1f, Motor1b, 255, 255},
+              right{Motor2f, Motor2b, 255, 255},
+              maxSlope(1.0 / zeroToOne) {
+                JD::Calibration::get(JD::Calibration::rotate90AtFull_ms,
+                                     timeToRotate90degAtFullSpeed);
+        }
+#endif
         void forwards(double val = 1) {
                 // left.forwards(val);
                 // right.backwards(val);
@@ -69,6 +89,7 @@ public:
                 rampUp(-val, -val);
         }
 
+#ifdef INTERPOLATE
         void update() {
                 // For rotation
                 if (rotateStopAt != 0 && millis() > rotateStopAt) {
@@ -77,51 +98,126 @@ public:
                 }
 
                 // For ramping up
-                if (endtime == lastUpdated && lastUpdated == 0)
+                if (currRight == targetRight && currLeft == targetLeft)
                         return;
 
                 double currTime = millis();
+                double leftUpdate, rightUpdate;
 
-                if (currTime > endtime) {
+                if (currTime > endtime || endtime == lastUpdated) {
                         // Force ending voltage to be target
-                        if (targetLeft >= 0)
-                                left.backwards(targetLeft);
-                        else
-                                left.forwards(-targetLeft);
-                        if (targetRight < 0)
-                                right.backwards(-targetRight);
-                        else
-                                right.forwards(targetRight);
-                        currLeft  = targetLeft;
-                        currRight = targetRight;
-                        endtime = lastUpdated = 0;
-                        return;
+                        leftUpdate  = targetLeft;
+                        rightUpdate = targetRight;
+                        endtime = currTime = 0;
+                } else {
+                        double slopeL =
+                            (targetLeft - currLeft) / (endtime - lastUpdated);
+                        double slopeR = (targetRight - currRight) /
+                                        (endtime - lastUpdated);
+
+                        // Linear Interpolation: y = mx + b
+                        leftUpdate =
+                            slopeL * (currTime - lastUpdated) + currLeft;
+                        rightUpdate =
+                            slopeR * (currTime - lastUpdated) + currRight;
                 }
 
-                double slopeL =
-                    (targetLeft - currLeft) / (endtime - lastUpdated);
-                double slopeR =
-                    (targetRight - currRight) / (endtime - lastUpdated);
-                // Linear Interpolation: y = mx + b
-                double leftUpdate =
-                    slopeL * (currTime - lastUpdated) + currLeft;
-                double rightUpdate =
-                    slopeR * (currTime - lastUpdated) + currRight;
+                if (leftUpdate >= 0) {
+                        // Serial.print(leftUpdate);
+                        // Serial.println(" left forwards");
+                        left.forwards(leftUpdate);
+                } else {
+                        // Serial.print(leftUpdate);
+                        // Serial.println(" left backwards");
+                        left.backwards(abs(leftUpdate));
+                }
 
-                if (leftUpdate >= 0)
-                        left.backwards(leftUpdate);
-                else
-                        left.forwards(-leftUpdate);
-                if (rightUpdate < 0)
-                        right.backwards(-rightUpdate);
-                else
-                        right.forwards(rightUpdate);
-
+                if (rightUpdate >= 0) {
+                        // Serial.print(rightUpdate);
+                        // Serial.println(" right forwards");
+                        right.backwards(rightUpdate);
+                } else {
+                        // Serial.print(rightUpdate);
+                        // Serial.println(" right backwards");
+                        right.forwards(abs(rightUpdate));
+                }
+                // Serial.print(currLeft, 7);
+                // Serial.print(' ');
+                // Serial.print(leftUpdate, 7);
+                // Serial.print(' ');
+                // Serial.print(targetLeft, 7);
+                // Serial.print(" | ");
+                // Serial.print(currRight, 7);
+                // Serial.print(' ');
+                // Serial.print(rightUpdate, 7);
+                // Serial.print(' ');
+                // Serial.print(targetRight, 7);
+                // Serial.println(' ');
                 currLeft    = leftUpdate;
                 currRight   = rightUpdate;
                 lastUpdated = currTime;
         }
+#else
+        void update() {
+                // For rotation
+                if (rotateStopAt != 0 && millis() > rotateStopAt) {
+                        stop();
+                        rotateStopAt = 0;
+                }
 
+                // For ramping up
+                if (currRight == targetRight && currLeft == targetLeft)
+                        return;
+
+                double currTime = millis();
+                double leftUpdate, rightUpdate;
+                double timeChange = currTime - lastUpdated;
+                Serial.println(abs(targetLeft - currLeft), 8);
+                Serial.println(abs(targetRight - currRight), 8);
+                Serial.println(maxSlope, 8);
+                if ((abs(targetLeft - currLeft)) < maxSlope)
+                        leftUpdate = targetLeft;
+                else {
+                        leftUpdate = ((targetLeft >= currLeft) * 2 - 1) *
+                                         maxSlope * timeChange +
+                                     currLeft;
+                }
+
+                if ((abs(targetRight - currRight)) < maxSlope)
+                        rightUpdate = targetRight;
+                else {
+                        rightUpdate = ((targetRight >= currRight) * 2 - 1) *
+                                          maxSlope * timeChange +
+                                      currRight;
+                }
+                if (leftUpdate >= 0) {
+                        // Serial.print(leftUpdate);
+                        // Serial.println(" left forwards");
+                        left.forwards(leftUpdate);
+                } else {
+                        // Serial.print(leftUpdate);
+                        // Serial.println(" left backwards");
+                        left.backwards(abs(leftUpdate));
+                }
+
+                if (rightUpdate >= 0) {
+                        // Serial.print(rightUpdate);
+                        // Serial.println(" right forwards");
+                        right.backwards(rightUpdate);
+                } else {
+                        // Serial.print(rightUpdate);
+                        // Serial.println(" right backwards");
+                        right.forwards(abs(rightUpdate));
+                }
+                Serial.println(leftUpdate);
+                Serial.println(rightUpdate);
+
+                currLeft    = leftUpdate;
+                currRight   = rightUpdate;
+                lastUpdated = currTime;
+                Serial.println();
+        }
+#endif
         /**
          * @brief Will turn with one wheel being center of rotation
          *
@@ -159,11 +255,12 @@ public:
                 rampUp(d == RIGHT ? val : -val, d == RIGHT ? -val : val);
         }
 
-        void rotateDeg(Direction d, double angle = 90) { 
+        void rotateDeg(Direction d, double angle = 90) {
                 constexpr double callibrationAngle = 90;
-                rotateStopAt = millis() + abs(angle/callibrationAngle) * timeToRotate90degAtFullSpeed;
+                rotateStopAt = millis() + abs(angle / callibrationAngle) *
+                                              timeToRotate90degAtFullSpeed;
                 rotate(d);
-         }
+        }
         /**
          * @brief Will turn using specified values for inner and outer motors
          *

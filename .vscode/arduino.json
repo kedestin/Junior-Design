@@ -1,7 +1,7 @@
 {
-        "output": "../build",
-        "sketch": "FinalDemo\\Challenge3\\challenge3.ino",
-        "board": "arduino:avr:mega",
-        "configuration": "cpu=atmega2560",
-        "port": "COM3"
+    "sketch": "Phase 3\\Design Phase - 3A\\LineFollower\\LineFollow.ino",
+    "board": "arduino:avr:mega",
+    "configuration": "cpu=atmega2560",
+    "port": "COM4",
+    "output": "../build"
 }

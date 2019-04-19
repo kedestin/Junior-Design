@@ -7,8 +7,8 @@
 #include "src/Timer.h"
 
 JD::LED         green(LED_BUILTIN);
-JD::Receiver    mic(A14);
-JD::Transmitter speaker(2);
+JD::Receiver    mic(A1);
+JD::Transmitter speaker(30);
 
 JD::Updateable* peripherals[] = {&green, &mic, &speaker};
 
@@ -49,25 +49,25 @@ void loop() {
         PT_BEGIN();
 
 
-        Serial.println("Sending 200"); 
-        speaker.send(220, false);
-        timer.start(2000);
-        PT_WAIT_UNTIL(timer.isFinished());
+        // Serial.println("Sending 200"); 
+        // speaker.send(220, false);
+        // timer.start(2000);
+        // PT_WAIT_UNTIL(timer.isFinished());
         
-        Serial.println("Sending 300"); 
-        speaker.send(320, false);
-        timer.start(2000);
-        PT_WAIT_UNTIL(timer.isFinished());
+        // Serial.println("Sending 300"); 
+        // speaker.send(320, false);
+        // timer.start(2000);
+        // PT_WAIT_UNTIL(timer.isFinished());
         
-        Serial.println("Sending 400"); 
-        speaker.send(420, false);
-        timer.start(2000);
-        PT_WAIT_UNTIL(timer.isFinished());
+        // Serial.println("Sending 400"); 
+        // speaker.send(420, false);
+        // timer.start(2000);
+        // PT_WAIT_UNTIL(timer.isFinished());
         
-        Serial.println("Sending 500"); 
-        speaker.send(520, false);
-        timer.start(2000);
-        PT_WAIT_UNTIL(timer.isFinished());
+        // Serial.println("Sending 500"); 
+        // speaker.send(520, false);
+        // timer.start(2000);
+        // PT_WAIT_UNTIL(timer.isFinished());
         PT_END();
 
 

@@ -33,33 +33,33 @@ void runTest() {
         JD::Calibration::get(JD::Calibration::driveAt_1_25_inch_s,
                              _1_25_in_per_s);
         static JD::Timer timer;
-        
+
         PT_BEGIN();
-        
+
         // Move forwards 12 inches
-        double distance_in = 12;
+        distance_in = 12;
         timer.start(distance_in / 1.25 * 1000);
         ds.forwards(_1_25_in_per_s);
         PT_WAIT_UNTIL(timer.isFinished());
 
         // Rotate 180 degrees
         ds.rotateDeg(JD::DriveSystem::RIGHT, 180);
-        
+
         // Move backwards 3 inches
-        double distance_in = 12;
+        distance_in = 3;
         timer.start(distance_in / 1.25 * 1000);
         ds.forwards(_1_25_in_per_s);
         PT_WAIT_UNTIL(timer.isFinished());
 
         // Rotate 90 degrees left
         ds.rotateDeg(JD::DriveSystem::LEFT, 90);
-        
+
         // Rotate 90 degrees right
         ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
-        
+
         // Rotate 90 degrees right
         ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
-        
+
         // Rotate 90 degrees right
         ds.rotateDeg(JD::DriveSystem::RIGHT, 90);
 

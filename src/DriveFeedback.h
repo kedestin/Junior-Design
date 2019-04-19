@@ -18,6 +18,7 @@ private:
                 LED left, right;
                 PairLights(uint8_t l, uint8_t r) : left(l), right(r) {}
                 void on() {
+                        off();
                         left.on();
                         right.on();
                 }
@@ -66,7 +67,7 @@ public:
               ds(newDs) {}
 
         void update() override {
-                head.update();
+                // head.update();
                 brake.update();
                 turn.update();
 
