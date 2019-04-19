@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                         last10Notes.add("Sent " + msg.substring(2) + "ms message\n");
                         break;
                 }
+                if (last10Notes == null) Log.d("huh", "whoops?");
                 if (last10Notes.size() > 20) last10Notes.remove(0);
             }
         }
@@ -206,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
             int frame = act[0].frame;
             SensorFragment sens_frag = act[0].sens_frag;
             NotificationFragment note_frag = act[0].note_frag;
-            ArrayList<String> localPending = new ArrayList<String>();
 
             while (true) {
                 try {

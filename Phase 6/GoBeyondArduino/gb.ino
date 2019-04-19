@@ -9,17 +9,25 @@
 #include "src/Updateable.h"
 #include "src/DriveSystem.h"
 #include "src/DriveFeedback.h"
+#include "src/Protothread.h"
+#include "src/Timer.h"
 
 
-JD::DriveSystem drivesys(8, 10, 11, 9);
+JD::DriveSystem drivesys(8, 9, 10, 11);
 JD::DriveFeedback driveFeed(45, 38, 25, 27, 24, 26, drivesys);
 JD::ColorSensor colors(36, 37, A15);
 JD::Receiver receiver(A7);
 JD::Transmitter transmitter(22);
 JD::Bumper bumpers(43, 42, 31);
 JD::Sensor proximity(A5);
+JD::LED blue(44);
 const int HALL = 41;
-int lastUpdate = -1000;
+const int HORN = 3;
+unsigned long lastUpdate;
+const int durations[9] = {5, 100, 200, 300, 400, 500, 1000, 2000, 3000};
+char op = '\0', dur = '\0';
+unsigned long startedOp, duration;
+bool inProgress = false;
 
 JD::Updateable *peripherals[] = {&drivesys, &driveFeed, &colors,
                                  &receiver, &transmitter, &bumpers, 
@@ -32,10 +40,12 @@ void setup() {
     while(!Serial);
     JD::setupPWM();
     pinMode(HALL, INPUT);
+    pinMode(HORN, OUTPUT);
+    lastUpdate = 0;
 }
 
 void loop() {
-    long time = millis();
+    unsigned long time = millis();
     for (auto p : peripherals) {
         p->update();
     }
@@ -43,7 +53,90 @@ void loop() {
     if (time - lastUpdate > 2000) {
         sendUpdates();
         lastUpdate = time;
+        blue.toggle();
     }
+
+
+    if (Serial.available() >= 2 && !inProgress) {
+        op = Serial.read();
+        dur = Serial.read();
+    }
+
+    time = millis();
+    switch (op) {
+            case 'f':
+                if (!inProgress) {
+                    inProgress = true;
+                    drivesys.forwards();
+                    startedOp = time;
+                }
+                if (time - startedOp >= durations[dur - '0']) {
+                    drivesys.stop();
+                    inProgress = false;
+                    op = '\0';
+                    dur = '\0';
+                }
+                break;
+            case 'r':
+                if (!inProgress) {
+                    inProgress = true;
+                    drivesys.backwards();
+                    startedOp = time;
+                }
+                if (time - startedOp >= durations[dur - '0']) {
+                    drivesys.stop();
+                    inProgress = false;
+                    op = '\0';
+                    dur = '\0';
+                }
+                break;
+            case 'l':
+                if (!inProgress) {
+                    inProgress = true;
+                    drivesys.turn(JD::DriveSystem::RIGHT);
+                    startedOp = time;
+                }
+                if (time - startedOp >= durations[dur - '0']) {
+                    drivesys.stop();
+                    inProgress = false;
+                    op = '\0';
+                    dur = '\0';
+                }
+                break;
+            case 't':
+                if (!inProgress) {
+                    inProgress = true;
+                    drivesys.turn(JD::DriveSystem::LEFT);
+                    startedOp = time;
+                }
+                if (time - startedOp >= durations[dur - '0']) {
+                    drivesys.stop();
+                    inProgress = false;
+                    op = '\0';
+                    dur = '\0';
+                }
+                break;
+            case 'h':
+                if (!inProgress) {
+                    inProgress = true;
+                    analogWrite(HORN, 128);
+                    startedOp = time;
+                }
+                if (time - startedOp >= durations[dur - '0']) {
+                    digitalWrite(HORN, LOW);
+                    inProgress = false;
+                    op = '\0';
+                    dur = '\0';                   
+                }
+                break;
+            case 's':
+                transmitter.send(durations[dur - '0'], false);
+                String msg = "mt" + getFmtdString(durations[dur - '0']);
+                Serial.print(msg);
+                break;
+        }
+
+
 }
 
 void sendUpdates() {
@@ -75,6 +168,33 @@ void sendUpdates() {
     String prox = getFmtdString((int) proximity.read());
     prox = "sp" + prox;
     Serial.print(prox);
+
+    switch (receiver.receivedMsg()) {
+        case 2:
+            Serial.write("mr200");
+            break;
+        case 3:
+            Serial.write("mr300");
+            break;
+        case 4:
+            Serial.write("mr400");
+            break;
+        case 5:
+            Serial.write("mr500");
+            break;
+    }
+
+    switch (bumpers.read()) {
+        case 0:
+            Serial.write("mc010");
+            break;
+        case 1:
+            Serial.write("mc100");
+            break;
+        case 2:
+            Serial.write("mc001");
+            break;
+    }
 }
 
 String getFmtdString(int val) {
