@@ -34,12 +34,12 @@ public class NotificationFragment extends Fragment {
         View note_view = inflater.inflate(R.layout.activity_note, container, false);
         msgTV = note_view.findViewById(R.id.msgTV);
 
-        /* Set view elements */
 
         return note_view;
     }
 
     public void print_messages() {
+        last10Notes = ((MainActivity) getActivity()).last10Notes;
         String output = "";
         for (String msg : last10Notes) {
             output += msg;

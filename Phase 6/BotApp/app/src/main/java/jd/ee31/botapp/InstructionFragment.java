@@ -85,6 +85,15 @@ public class InstructionFragment extends Fragment {
             case "500ms":
                 msg += '5';
                 break;
+            case "1s":
+                msg += '6';
+                break;
+            case "2s" :
+                msg += '7';
+                break;
+            case "3s":
+                msg += '8';
+                break;
         }
 
         OutputStream ostream = ((MainActivity) getActivity()).outStream;
@@ -94,6 +103,7 @@ public class InstructionFragment extends Fragment {
                 return;
             };
             ostream.write(msg.getBytes());
+            Log.d("wrote", msg);
         } catch (Exception e) {
             Log.d("hmm", "ok");
         }

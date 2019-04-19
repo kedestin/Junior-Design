@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class SensorFragment extends Fragment {
-
-    private ArrayList<String> pendingMsgs;
     TextView tvGearVal, tvSpeedVal, tvColorVal, tvProxVal, tvMagVal;
 
 

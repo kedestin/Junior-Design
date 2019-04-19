@@ -18,5 +18,8 @@
         <item>300ms</item>
         <item>400ms</item>
         <item>500ms</item>
+        <item>1s</item>
+        <item>2s</item>
+        <item>3s</item>
     </string-array>
 </resources>
