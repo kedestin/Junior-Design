@@ -4,6 +4,12 @@
 #include "Peripheral.h"
 
 namespace JD {
+
+/**
+ * @brief An abstraction for a switch
+ *
+ * @tparam numPins
+ */
 template <unsigned numPins>
 class Switch : public Peripheral<numPins> {
 private:
@@ -11,6 +17,8 @@ private:
         uint32_t val = 0;
 
 public:
+        static_assert(numPins <= 32, "Only supports 0 to 32 pins");
+
         template <class... T>
         constexpr Switch(T... args) : Peripheral<numPins>(args...), val(0) {
                 static_assert(sizeof...(args) == numPins,

@@ -1,5 +1,5 @@
 {
-    "sketch": "Phase 3\\Design Phase - 3A\\LineFollower\\LineFollow.ino",
+    "sketch": "lib\\callibration\\motorRotate\\motorRotate.ino",
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
     "port": "COM4",
