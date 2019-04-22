@@ -26,7 +26,7 @@
 
 * Red LED - 48
 * Green LED - 46
-* White LED - 44
+* Blue LED - 44
 * Yellow LED - 2
 
 ### Horn
