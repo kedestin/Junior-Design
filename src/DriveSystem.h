@@ -38,6 +38,7 @@ private:
                 targetLeft  = left;
                 targetRight = right;
                 lastUpdated = millis();
+                update();
         }
 #endif
         unsigned long timeToRotate90degAtFullSpeed;
@@ -66,6 +67,15 @@ public:
                     unsigned Motor2b, unsigned long zeroToOne = 1)
             : left{Motor1f, Motor1b, 255, 255},
               right{Motor2f, Motor2b, 255, 255},
+              maxSlope(1.0 / zeroToOne) {
+                JD::Calibration::get(JD::Calibration::rotate90AtFull_ms,
+                                     timeToRotate90degAtFullSpeed);
+        }
+
+        DriveSystem(const MotorConfig&& l, const MotorConfig&& r,
+                    unsigned long zeroToOne = 1)
+            : left(static_cast<const MotorConfig&&>(l)),   // Move Constructor
+              right(static_cast<const MotorConfig&&>(r)),  // Move Constructor
               maxSlope(1.0 / zeroToOne) {
                 JD::Calibration::get(JD::Calibration::rotate90AtFull_ms,
                                      timeToRotate90degAtFullSpeed);
@@ -161,6 +171,7 @@ public:
         void update() {
                 // For rotation
                 if (rotateStopAt != 0 && millis() > rotateStopAt) {
+                        // Serial.println("Rotate stopping");
                         stop();
                         rotateStopAt = 0;
                 }
@@ -172,9 +183,9 @@ public:
                 double currTime = millis();
                 double leftUpdate, rightUpdate;
                 double timeChange = currTime - lastUpdated;
-                Serial.println(abs(targetLeft - currLeft), 8);
-                Serial.println(abs(targetRight - currRight), 8);
-                Serial.println(maxSlope, 8);
+                // Serial.println(abs(targetLeft - currLeft), 8);
+                // Serial.println(abs(targetRight - currRight), 8);
+                // Serial.println(maxSlope, 8);
                 if ((abs(targetLeft - currLeft)) < maxSlope)
                         leftUpdate = targetLeft;
                 else {
@@ -209,13 +220,16 @@ public:
                         // Serial.println(" right backwards");
                         right.forwards(abs(rightUpdate));
                 }
-                Serial.println(leftUpdate);
-                Serial.println(rightUpdate);
+                // Serial.println(leftUpdate);
+                // Serial.println(rightUpdate);
 
-                currLeft    = leftUpdate;
-                currRight   = rightUpdate;
+                currLeft  = leftUpdate;
+                currRight = rightUpdate;
+                // Serial.print(currLeft);
+                // Serial.print(' ');
+                // Serial.println(currRight);
                 lastUpdated = currTime;
-                Serial.println();
+                // Serial.println();
         }
 #endif
         /**

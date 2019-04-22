@@ -24,7 +24,7 @@ const T& minimum(const T& a, const T& b, const Args&... args) {
 }
 
 template <class... T>
-bool lineFollow(T... args) {
+bool lineFollow( bool (*fp)(), T... args) {
         constexpr double ki = 0;
         constexpr double kp = .8;
         constexpr double kd = 1;
@@ -186,7 +186,7 @@ void loop() {
         // ds.forwards(0);
         PT_BEGIN();
         Serial.print("start\n");
-        PT_WAIT_WHILE(lineFollow(JD::ColorSensor::Blue, JD::ColorSensor::Red));
+        PT_WAIT_WHILE(lineFollow(+[](){return false;}, JD::ColorSensor::Blue, JD::ColorSensor::Red));
         PT_END();
         Serial.println("restarting");
         PT_RESTART();
