@@ -42,7 +42,7 @@ private:
         }
 #endif
         unsigned long timeToRotate90degAtFullSpeed;
-        unsigned long rotateStopAt = 0;
+        unsigned long rotateDuration = 0, rotateStartedAt = 0;
 
 public:
         // enum PINOUT { Motor1f = 2, Motor1b = 3, Motor2b = 4, Motor2f = 5 };
@@ -81,23 +81,9 @@ public:
                                      timeToRotate90degAtFullSpeed);
         }
 #endif
-        void forwards(double val = 1) {
-                // left.forwards(val);
-                // right.backwards(val);
-                // currLeft = currRight = val;
-                rampUp(val, val);
-        }
-        void stop() {
-                forwards(0);
-                // currLeft = currRight = 0;
-        }
-
-        void backwards(double val = 1) {
-                // left.backwards(val);
-                // right.forwards(val);
-                // currLeft = currRight = -val;
-                rampUp(-val, -val);
-        }
+        void forwards(double val = 1) { rampUp(val, val); }
+        void backwards(double val = 1) { rampUp(-val, -val); }
+        void stop() { forwards(0); }
 
 #ifdef INTERPOLATE
         void update() {
@@ -169,12 +155,14 @@ public:
         }
 #else
         void update() {
-
                 // For rotation
-                if (rotateStopAt != 0 && millis() > rotateStopAt) {
+                if (rotateStartedAt != 0 &&
+                    millis() - rotateStartedAt > rotateDuration) {
                         // Serial.println("Rotate stopping");
-                        stop();
-                        rotateStopAt = 0;
+                        if (isLeft() || isRight())
+                                stop();
+                        rotateStartedAt = 0;
+                        rotateDuration  = 0;
                 }
 
                 // For ramping up
@@ -224,12 +212,12 @@ public:
                 // Serial.println(leftUpdate);
                 // Serial.println(rightUpdate);
 
-                currLeft  = leftUpdate;
-                currRight = rightUpdate;
+                currLeft    = leftUpdate;
+                currRight   = rightUpdate;
+                lastUpdated = currTime;
                 // Serial.print(currLeft);
                 // Serial.print(' ');
                 // Serial.println(currRight);
-                lastUpdated = currTime;
                 // Serial.println();
         }
 #endif
@@ -241,11 +229,6 @@ public:
          */
         void pivot(Direction d, double val = 1) {
                 rampUp(d == LEFT ? 0 : val, d == LEFT ? val : 0);
-                // (d == LEFT ? left : right).stop();
-                // (d == LEFT ? right : left).forwards(val);
-
-                // (d == LEFT ? currLeft : currRight) = 0;
-                // (d == LEFT ? currRight : currLeft) = val;
         }
 
         /**
@@ -255,27 +238,9 @@ public:
          * @param val Speed to turn (0 to 1)
          */
         void rotate(Direction d, double val = 1) {
-                // if (d == RIGHT) {
-                //         left.forwards(val);
-                //         right.forwards(val);
-                //         currLeft  = val;
-                //         currRight = -val;  // Motors are backwards
-                // } else {
-                //         left.backwards(val);
-                //         right.backwards(val);
-                //         currLeft  = -val;
-                //         currRight = val;
-                // }
-
                 rampUp(d == RIGHT ? val : -val, d == RIGHT ? -val : val);
         }
 
-        void rotateDeg(Direction d, double angle = 90) {
-                constexpr double callibrationAngle = 90;
-                rotateStopAt = millis() + abs(angle / callibrationAngle) *
-                                              timeToRotate90degAtFullSpeed;
-                rotate(d);
-        }
         /**
          * @brief Will turn using specified values for inner and outer motors
          *
@@ -286,11 +251,6 @@ public:
         void turn(Direction d, double inner, double outer) {
                 rampUp((d == LEFT) ? inner : outer,
                        (d == LEFT) ? outer : inner);
-                // left.forwards((d == LEFT) ? inner : outer);
-                // right.backwards((d == LEFT) ? outer : inner);
-
-                // currLeft  = (d == LEFT) ? inner : outer;
-                // currRight = (d == LEFT) ? outer : inner;
         }
         /**
          * @brief Will turn with a non zero radius, determined by speed
@@ -301,13 +261,15 @@ public:
         void turn(Direction d, double val = 1) {
                 rampUp(d == LEFT ? (val / 2) : val,
                        d == LEFT ? val : (val / 2));
-                // left.forwards(d == LEFT ? (val / 2) : val);
-                // right.backwards(d == LEFT ? val : (val / 2));
-
-                // currLeft  = (d == LEFT) ? (val / 2) : val;
-                // currRight = (d == LEFT) ? val : (val / 2);
         }
 
+        void rotateDeg(Direction d, double angle = 90) {
+                constexpr double callibrationAngle = 90;
+                rotateDuration = abs(angle / callibrationAngle) *
+                                 timeToRotate90degAtFullSpeed;
+                rotateStartedAt = millis();
+                rotate(d);
+        }
         bool   isForwards() const { return currLeft > 0 && currRight > 0; }
         bool   isBackwards() const { return currLeft < 0 && currRight < 0; }
         bool   isStopped() const { return currLeft == 0 && currRight == 0; }
