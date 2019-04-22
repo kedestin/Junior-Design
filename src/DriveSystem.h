@@ -177,9 +177,10 @@ public:
                 }
 
                 // For ramping up
-                if (currRight == targetRight && currLeft == targetLeft)
+                if (currRight == targetRight && currLeft == targetLeft) {
                         return;
-
+                }
+                
                 double currTime = millis();
                 double leftUpdate, rightUpdate;
                 double timeChange = currTime - lastUpdated;

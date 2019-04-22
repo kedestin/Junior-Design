@@ -61,7 +61,27 @@ void loop() {
         Serial.println(millis());
 
         PT_END();
+        static JD::ColorSensor::Color old  = JD::ColorSensor::Color::Black;
+        JD::ColorSensor::Color        curr = cs.read();
 
-
+        if (curr != old) {
+                Serial.print("Color is ");
+                switch (curr) {
+                        case JD::ColorSensor::Red: Serial.print("Red."); break;
+                        case JD::ColorSensor::Blue:
+                                Serial.print("Blue.");
+                                break;
+                        case JD::ColorSensor::Black:
+                                Serial.print("Black.");
+                                break;
+                        case JD::ColorSensor::Yellow:
+                                Serial.print("Yellow.");
+                                break;
+                        default: Serial.print("Unknown: "); break;
+                }
+                Serial.print(cs.error(curr));
+                old = curr;
+                Serial.println();
+        }
 
 }

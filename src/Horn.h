@@ -16,10 +16,7 @@ private:
 public:
         Horn(uint8_t pin) : Peripheral(pin) {}
         void setFrequency(double newFreq) { freq = newFreq; }
-        bool isSending() {
-                return currLength ==
-                       (sizeof(lengths) / sizeof(lengths[0]) + 1);
-        }
+        bool isSending() { return currLength < numLengths; }
         template <class... T>
         void sendSequence(T... args) {
                 static_assert(sizeof...(args), "Only supports 32 lengths");
@@ -39,9 +36,7 @@ public:
                 if (millis() - startedAt > lengths[currLength]) {
                         startedAt = millis();
                         currLength++;
-                        if (not isSending())
-                                return;
-                        if (currLength % 2 == 1)
+                        if (not isSending() || currLength % 2 == 1)
                                 noTone(m_pin);
                         else
                                 tone(m_pin, freq);
