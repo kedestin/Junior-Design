@@ -17,6 +17,9 @@
  *    complex state machines or full multi-threading. "
  *     -  http://dunkels.com/adam/pt/
  *
+ *      // https://en.wikipedia.org/wiki/Duff%27s_device
+ *      // https://en.wikipedia.org/wiki/Protothread
+ *
  *  * C style macros to actually write a protothread function
  *
  * tldr: Protothreads are basically functions written within a switch
@@ -28,10 +31,27 @@ namespace JD {
 
 // Protothread local continuation type
 using PT_lc_t = uint16_t;
+/* Note: This can't be put within the template class AND used as the argument
+type for protothread_t. It places too strict of a requirement on pattern
+matching during template argument deduction */
 
 template <class... Args>
 class Protothread;
 
+/**
+ * @brief A more user friendly way to make a protothread object
+ *
+ *  usage
+ *
+ *      auto thread = makeProtothread(functionPointer);
+ *
+ * The template parameters of the protothread will be deduced from the function
+ * pointer
+ *
+ * @tparam Args
+ * @param thread
+ * @return Protothread<Args...>
+ */
 template <class... Args>
 Protothread<Args...> makeProtothread(void (*thread)(PT_lc_t&, Args...));
 
@@ -94,6 +114,7 @@ protected:
 
 private:
         // Construct a protothread from a thread function
+        // Users should elect to use makeProtothread instead
         Protothread(protothread_t new_thread) : _lc(0), _thread(new_thread) {}
 
         friend Protothread<Args...> makeProtothread<Args...>(protothread_t);
@@ -125,18 +146,18 @@ Protothread<Args...> makeProtothread(void (*thread)(PT_lc_t&, Args...)) {
                 case 0:
 
 // Allows a standalone function to be a prothread
-#define PT_BEGIN()                              \
-        static JD::Protothread<>::lc_t _lc = 0; \
-        (void)_lc;                              \
+#define PT_BEGIN()                          \
+        static JD::Protothread<>::lc_t _lc; \
+        (void)_lc;                          \
         PT_BEGIN_LC_ALREADY_DECLARED()
 
 #define PT_STOP() _lc = JD::Protothread<>::notRunning
 
 // Ends the protothread
-#define PT_END()  \
-        default:; \
-                } \
-                // PT_STOP(); \
+#define PT_END()           \
+        default:;          \
+                }          \
+                PT_STOP(); \
                 // return;
 
 // Waits until given condition is true

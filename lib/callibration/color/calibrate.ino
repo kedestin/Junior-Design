@@ -29,48 +29,39 @@ void loop() {
                 p->update();
 
         long unsigned wait_for = 5e3;
-        // https://en.wikipedia.org/wiki/Duff%27s_device
-        // https://en.wikipedia.org/wiki/Protothread
-        // Serial.println(analogRead(A15));
-        // printVec(cs.raw());
-        // Serial.println(cs.raw().norm());
-        // return;
 
         PT_BEGIN();
         Serial.println(millis());
         Serial.println("Black");
-        // indicator.blink(1, 1e7);
         timer.start(wait_for);
         PT_WAIT_UNTIL(timer.isFinished());
         JD::Calibration::set(JD::Calibration::ColorBlack, cs.raw());
         printVec(cs.raw());
-        // indicator.blink(2, 1e7);
+
         Serial.println(millis());
         Serial.println("Yellow");
         timer.start(wait_for);
         PT_WAIT_UNTIL(timer.isFinished());
         JD::Calibration::set(JD::Calibration::ColorYellow, cs.raw());
         printVec(cs.raw());
-        // indicator.blink(3, 1e7);
+
         Serial.println(millis());
         Serial.println("Red");
         timer.start(wait_for);
         PT_WAIT_UNTIL(timer.isFinished());
         JD::Calibration::set(JD::Calibration::ColorRed, cs.raw());
         printVec(cs.raw());
-        // indicator.blink(4, 1e7);
+
         Serial.println(millis());
         Serial.println("Blue");
         timer.start(wait_for);
         PT_WAIT_UNTIL(timer.isFinished());
         JD::Calibration::set(JD::Calibration::ColorBlue, cs.raw());
         printVec(cs.raw());
-        // indicator.blink(5, 1e7);
-
         Serial.println(millis());
+
         PT_END();
 
-        Serial.println("exiting");
-        Serial.flush();
-        exit(0);
+
+
 }

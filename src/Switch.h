@@ -27,6 +27,7 @@ public:
         }
 
         void update() override {
+                val = 0;
                 for (unsigned i = 0; i < sizeof(m_pin) / sizeof(m_pin[0]); i++)
                         val &= digitalRead(m_pin[0]) << i;
         }
