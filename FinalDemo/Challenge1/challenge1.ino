@@ -145,16 +145,19 @@ void bot1() {
         PT_WAIT_UNTIL(timer.isFinished());
         Serial.println("Rotating");
         // static_assert(false, "Must make a turn of X degrees off wall");
-        ds.rotate(JD::DriveSystem::RIGHT);
-        timer.start(375 * 25.0 / 90.0);
-        PT_WAIT_UNTIL(timer.isFinished());
+        ds.rotate(JD::DriveSystem::RIGHT, speed);
+        //timer.start(375 * .0 / 90.0);
+        PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Blue);
 
         // Then moves to find the bluepath on the far side
-        ds.forwards(speed);
-        PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Blue);
+        //ds.forwards(speed);
+        //PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Blue);
 
         // When it does so, Bot 1 illuminates a blueLED.
         blue.on();
+        ds.stop();
+        timer.start(200);
+        PT_WAIT_UNTIL(timer.isFinished());
 
         // Bot 1 must follow the bluepath until it detects the
         // pedestrian(magnetic field).
@@ -162,15 +165,16 @@ void bot1() {
 
         // static_assert(false, "Must linefollow on blue until pedestrian");
         Serial.println("Follow blue");
+        ds.turn(JD::DriveSystem::LEFT, 0.5);
         PT_WAIT_WHILE((printColor(), (halleffect.read() == 1 &&
-                                      lineFollow(JD::ColorSensor::Blue))));
+                                      followEdge(JD::ColorSensor::Blue, JD::DriveSystem::LEFT))));
         Serial.println("Done following blue");
         // Here it turns off  the blue LED  and  illuminates  a green LED
         blue.off();
         green.on();
 
         ds.forwards(speed);
-        timer.start(500);
+        timer.start(800);
         PT_WAIT_UNTIL(timer.isFinished());
         // Bot  1  makes  a 90° right turn. The  bot will  be  judged  how
         // tight a  90° right turn  it  makes
@@ -187,45 +191,62 @@ void bot1() {
         horn.sendSequence(300, 50, 300);
         green.off();
         // When Bot  1 makes the right turn it follows  the  yellow  path.
-
+        // Delay allows bot to actually start on path.
         timer.start(400);
         PT_WAIT_UNTIL(timer.isFinished());
         ds.rotate(JD::DriveSystem::RIGHT);
         timer.start(400);
         PT_WAIT_UNTIL(timer.isFinished());
+        ds.stop();
+        timer.start(200);
+        PT_WAIT_UNTIL(timer.isFinished());
         Serial.println("Follow yellow");
         // static_assert(false, "Follow yellow path until detects
         // pedestrian");
+        ds.turn(JD::DriveSystem::LEFT, speed);
         PT_WAIT_WHILE(halleffect.read() == 1 &&
-                      lineFollow(JD::ColorSensor::Yellow));
+                      followEdge(JD::ColorSensor::Yellow, JD::DriveSystem::LEFT));
         Serial.println("Done following yellow");
         ds.stop();
-        // // When Bot 1 detects  the  policeman  (magnetic  field) it  beeps
-        // it
-        // // horn twice and makes a 90° left turn.The bot will be judged how
-        // // tight a 90° leftturn it makes
-        // // static_assert(false, "Honk twice");
-        // // horn.sendSequence(100, 20, 100);
-        // // static_assert(false, "Make a 90 degree left turn");
-        // ds.rotateDeg(JD::DriveSystem::LEFT, 90);
+        // When Bot 1 detects  the  policeman  (magnetic  field) it  beeps
+        // horn twice and makes a 90° left turn.The bot will be judged how
+        // tight a 90° leftturn it makes
+        // static_assert(false, "Honk twice");
+        // horn.sendSequence(100, 20, 100);
+        // static_assert(false, "Make a 90 degree left turn");
+        ds.rotate(JD::DriveSystem::LEFT);
+        timer.start(400);
+        PT_WAIT_UNTIL(timer.isFinished());
 
-        // // When Bot 1 detects the redpath it illuminates a red LED, makes a
-        // // 90° left turn traveling along the redpath until it detects the
-        // // pedestrian.
-        // ds.forwards(speed);
-        // PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Yellow);
-        // ds.rotateDeg(JD::DriveSystem::LEFT, 90);
-        // // static_assert(false, "Follow red path until detects pedestrian");
-        // PT_WAIT_WHILE(halleffect.read() == 1 &&
-        //               lineFollow(JD::ColorSensor::Red));
+        // When Bot 1 detects the redpath it illuminates a red LED, makes a
+        // 90° left turn traveling along the redpath until it detects the
+        // pedestrian.
+        ds.forwards(speed);
+        PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Red);
+        timer.start(400);
+        PT_WAIT_UNTIL(timer.isFinished());
+        ds.stop();
+        timer.start(200);
+        PT_WAIT_UNTIL(timer.isFinished());
 
-        // // When it detects the pedestrian (magnetic field), it must
-        // // flash a green LED, bringingthe bot to a complete and fullstop
-        // green.blink(1);
-        // ds.stop();
+        ds.rotate(JD::DriveSystem::LEFT);
+        timer.start(400);
+        PT_WAIT_UNTIL(timer.isFinished());
+        // static_assert(false, "Follow red path until detects pedestrian");
+        ds.stop();
+        timer.start(200);
+        PT_WAIT_UNTIL(timer.isFinished());
+        ds.turn(JD::DriveSystem::RIGHT, speed);
+        PT_WAIT_WHILE(halleffect.read() == 1 &&
+                      followEdge(JD::ColorSensor::Red, JD::DriveSystem::RIGHT));
 
-        // // communicate  with  the  TCC  via  a  200  ms  message_1
-        // speaker.send(200);
+        // When it detects the pedestrian (magnetic field), it must
+        // flash a green LED, bringingthe bot to a complete and fullstop
+        green.blink(1);
+        ds.stop();
+
+        // communicate  with  the  TCC  via  a  200  ms  message_1
+        speaker.send(200);
 
         // // When  Bot  1  receives  a responding 200 ms message_1 from the
         // TCC,
@@ -388,3 +409,33 @@ bool lineFollow(T... args) {
         lastlastlastOutput = lastlastOutput;
         return true;
 }
+
+
+bool followEdge(JD::ColorSensor::Color c, JD::DriveSystem::Direction edge) {
+    const static unsigned wiggleFreq = 100;
+    static unsigned long lastSwitch = millis();
+    static unsigned long weLostIt = 3000;
+    unsigned long currTime = millis();
+    static bool prevColor = (cs.read() == c);
+    bool onColor = (cs.read() == c);
+    if (onColor && currTime - lastSwitch > wiggleFreq) {
+        Serial.println("Blue to Black");
+        ds.stop();
+        ds.turn(JD::DriveSystem::LEFT ^ edge, 0.5);
+        lastSwitch = currTime;
+        prevColor = onColor;
+    } else if (!onColor && currTime - lastSwitch > wiggleFreq) {
+        Serial.println("Black to Blue");
+        ds.stop();
+        ds.turn(JD::DriveSystem::RIGHT ^ edge, 0.5);
+        lastSwitch = currTime;
+        prevColor = onColor;
+    } else if (currTime - lastSwitch > weLostIt) {
+        Serial.println("How");
+        return false;
+    }
+
+    Serial.println("In funct");
+    return true;
+}
+
