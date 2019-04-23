@@ -45,7 +45,6 @@ private:
         unsigned long rotateStopAt = 0;
 
 public:
-        // enum PINOUT { Motor1f = 2, Motor1b = 3, Motor2b = 4, Motor2f = 5 };
         enum Direction { LEFT, RIGHT };
 
         DriveSystem() : left{2, 3, 255, 255}, right{4, 5, 255, 255} {

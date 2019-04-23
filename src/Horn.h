@@ -17,6 +17,7 @@ public:
         Horn(uint8_t pin) : Peripheral(pin) {}
         void setFrequency(double newFreq) { freq = newFreq; }
         bool isSending() { return currLength < numLengths; }
+
         template <class... T>
         void sendSequence(T... args) {
                 static_assert(sizeof...(args), "Only supports 32 lengths");
