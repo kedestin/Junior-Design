@@ -8,13 +8,13 @@ JD::DriveSystem ds(10, 8, 11, 12, 20);
 JD::DriveFeedback df(45, 38, 25, 24, 27, 26, ds);
 JD::Sensor proximity(A5);
 
-JD::Updateable* peripherals[] = {&ds, &df, &proximity};
+JD::Updateable* peripherals[] = {&ds, /*&df,*/ &proximity};
 
 
 void setup() {
-        Serial.begin(115200);
-        while(!Serial);
-        Serial.println("Starting");
+//        Serial.begin(115200);
+//        while(!Serial);
+//        Serial.println("Starting");
         df.headLightOn();
 }
 
@@ -34,12 +34,12 @@ void loop() {
         for (auto p : peripherals)
                 p->update();
 
-        JD::Timer timer;
+        static JD::Timer timer;
 
         PT_BEGIN();
 
-        Serial.println("drive?");
-        ds.forwards();
+//        Serial.println("drive?");
+        ds.forwards(0.2);
         PT_WAIT_UNTIL(proximity.read() > 100);
 
         // PT_WAIT_UNTIL(static_assert(false, "Detect light"), false);
@@ -49,15 +49,18 @@ void loop() {
         // twice,  and  illuminate  their  rear  yellow turn signals.
         ds.stop();
         //coMmuNiCAte
-        PT_WAIT_UNTIL(timer.hasElapsed(200));
-        df.headLightOn();
-        PT_WAIT_UNTIL(timer.hasElapsed(50));
+        PT_WAIT_UNTIL(timer.hasElapsed(1000));
         df.headLightOff();
-        PT_WAIT_UNTIL(timer.hasElapsed(50));
+        PT_WAIT_UNTIL(timer.hasElapsed(500));
         df.headLightOn();
-        PT_WAIT_UNTIL(timer.hasElapsed(50));
+        PT_WAIT_UNTIL(timer.hasElapsed(500));
         df.headLightOff();
+        PT_WAIT_UNTIL(timer.hasElapsed(500));
+        df.headLightOn();
+        PT_WAIT_UNTIL(timer.hasElapsed(500));
         df.turnLightsOn();
+
+        while(1);
 
         
         // static_assert(false, "Flash headlights twice");
