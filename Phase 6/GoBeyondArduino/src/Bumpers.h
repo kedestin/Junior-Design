@@ -11,9 +11,15 @@ public:
             : Peripheral(frontLeft, frontRight, back) {}
 
         void update() override {
-                val |= digitalRead(m_pin[FrontLeft]) << FrontLeft;
-                val |= digitalRead(m_pin[FrontRight]) << FrontRight;
-                val |= digitalRead(m_pin[Back]) << Back;
+                // Serial.print(!digitalRead(m_pin[FrontLeft]));
+                // Serial.print(' ');
+                // Serial.print(!digitalRead(m_pin[FrontRight]));
+                // Serial.print(' ');
+                // Serial.print(!digitalRead(m_pin[Back]));
+                // Serial.print('\n');
+                val |= (!digitalRead(m_pin[FrontLeft])) << FrontLeft;
+                val |= (!digitalRead(m_pin[FrontRight])) << FrontRight;
+                val |= (!digitalRead(m_pin[Back])) << Back;
         }
 
         Collision read() {
@@ -31,3 +37,4 @@ public:
 }  // namespace JD
 
 #endif
+

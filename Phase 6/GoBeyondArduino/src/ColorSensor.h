@@ -28,6 +28,8 @@ private:
         RawData val;
         Color   curr;
 
+        double blueBright = 1, redBright = 1;
+
 public:
         /**
          * @brief Construct a new Color Sensor object, and loads reference
@@ -45,6 +47,12 @@ public:
                 Calibration::get(Calibration::ColorRed, config[Red]);
                 Calibration::get(Calibration::ColorBlue, config[Blue]);
         }
+        ColorSensor(uint8_t red_pin, uint8_t blue_pin, uint8_t photo_pin,
+                    double red_brightness, double blue_brightness)
+            : ColorSensor(red_pin, blue_pin, photo_pin) {
+                redBright  = red_brightness;
+                blueBright = blue_brightness;
+        }
 
         // Forbid default construction
         ColorSensor() = delete;
@@ -58,20 +66,20 @@ public:
                 blue.off();
                 red.off();
 
-                blue.on();
+                blue.on(blueBright);
                 delay(3);
                 b = phototransistor.read(Sensor::force);
 
                 blue.off();
-                red.on();
+                red.on(redBright);
                 delay(3);
                 r = phototransistor.read(Sensor::force);
 
-                blue.on();
+                blue.on(blueBright);
                 delay(3);
                 br  = phototransistor.read(Sensor::force);
                 val = {r, b, br};
-                
+
                 // Added after confirmed working
                 blue.off();
                 red.off();
@@ -93,7 +101,7 @@ public:
                 double min_error = 1e10;
                 Color  max_i     = (Color)-1;
                 Color  i;
-                for (i = Color::Black; i < Color::Yellow; i = (Color)(i + 1)) {
+                for (i = Color::Black; i <= Color::Yellow; i = (Color)(i + 1)) {
                         // switch (i) {
                         //         case Black: Serial.print("Black: "); break;
                         //         case Red: Serial.print("Red: "); break;
@@ -121,7 +129,7 @@ public:
          * @return double Norm of the difference of the two vectors
          */
         double error(Color c) { return (config[c] - val).norm(); }
-
+        
         const RawData& raw() { return val; }
 
         double r() { return val.data[0]; }
