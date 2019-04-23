@@ -110,8 +110,8 @@ public:
                                 count += millis() - lastUpdated;
                                 // Serial.println(count);
                         } else if (currStatus == Status::end) {
-                                Serial.println(count);
-                                Serial.println(round((double)count / 100));
+                                // Serial.println(count);
+                                // Serial.println(round((double)count / 100));
                                 Message msg{
                                     (Message)round((double)count / 100)};
                                 switch (msg) {

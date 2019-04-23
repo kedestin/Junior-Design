@@ -74,7 +74,6 @@ private:
                 // Serial.print(backward);
                 // Serial.print(" ");
                 // Serial.println(goForwards ? 0 : (maxVolt * val));
-                // Serial.println(maxVolt * val);
                 analogWrite((goForwards) ? forward : backward, maxVolt * val);
                 analogWrite((goForwards) ? backward : forward, 0);
         }

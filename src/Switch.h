@@ -32,6 +32,7 @@ public:
                         val &= digitalRead(m_pin[0]) << i;
         }
 
+
         uint32_t read() { return val; }
 };
 
