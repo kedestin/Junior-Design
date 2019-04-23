@@ -8,9 +8,13 @@
 namespace JD {
 
 /**
- * @brief Abstraction for a 2 wheel drive system
- *        Expects that motors must be told to spin in opposite directions to go
- *        forwards
+ * @brief Abstraction for human perceivable feedback for various systems on the
+ * bot
+ * 
+ *      * Headlights
+ *      * Brakelights
+ *      * TurnSignals
+ *       
  */
 class DriveFeedback : public Updateable {
 private:
@@ -18,6 +22,7 @@ private:
                 LED left, right;
                 PairLights(uint8_t l, uint8_t r) : left(l), right(r) {}
                 void on() {
+                        off();
                         left.on();
                         right.on();
                 }
@@ -66,7 +71,7 @@ public:
               ds(newDs) {}
 
         void update() override {
-                head.update();
+                // head.update();
                 brake.update();
                 turn.update();
 
@@ -75,16 +80,21 @@ public:
                 else
                         brake.off();
 
+                if (ds.getSpeed() == 0)
+                        headLightOff();
+                else    
+                        headLightOn();
+
                 PT_BEGIN();
                 if (ds.isLeft()) {
-                        Serial.println("blinkleft");
+                        // Serial.println("blinkleft");
                         // turn.blinkLeft();
                         turn.right.off();
                         // Only call blink once, otherwise stays on
                         turn.left.blink(2, 10000);
                         PT_WAIT_UNTIL(not ds.isLeft());
                 } else if (ds.isRight()) {
-                        Serial.println("blinkright");
+                        // Serial.println("blinkright");
                         // turn.blinkRight();
                         // Only call blink once, otherwise stays on
                         turn.right.blink(2, 10000);

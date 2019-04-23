@@ -24,7 +24,7 @@ namespace JD {
  *           E |     | C
  *             |     |
  *              -----
- *                D
+ *                D     
  */
 class SevenSegment : public Peripheral<8> {
 private:

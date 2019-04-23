@@ -82,7 +82,8 @@ void loop() {
         for (auto p : peripherals)
                 p->update();
         static JD::Timer timer;
-        // Serial.println(halleffect.read());
+        // broadcastMessage(JD::Receiver::msg300);
+        // return;
         // switch (mic.receivedMsg()){
         //         case JD::Receiver::msg200 :
         //         Serial.println("msg200");blue.blink(2); break; case
@@ -129,7 +130,7 @@ void bot1() {
 
         // signals  to  Bot  2  with  a  500  ms  message  that  it  is
         // starting.
-        speaker.send(540);
+        speaker.send(530);
         // timer.start(550);
         PT_WAIT_UNTIL(timer.hasElapsed(700));
 
@@ -140,7 +141,7 @@ void bot1() {
         // The  bot  mimics  the  white  dotted  line until it collides with
         // the wall of the test track.
         Serial.println("Waiting until collision");
-        PT_WAIT_UNTIL(bumper.read() != JD::Bumper::Collision::None);
+        PT_WAIT_UNTIL((broadcastMessage(JD::Receiver::msg500), bumper.read() != JD::Bumper::Collision::None));
         Serial.println("Hit something");
         // Rebounds from the wall
         ds.stop();
@@ -360,15 +361,15 @@ void bot1() {
 
         // Bot 1 then  signals  to  the  TCC  with  a  300  ms  unit  step
         // function  “message_2”.
-        speaker.send(310);
+        speaker.send(320);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(310);
+        speaker.send(320);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(310);
+        speaker.send(320);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(310);
+        speaker.send(320);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(310);
+        speaker.send(320);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
         ds.backwards(speed);
         PT_WAIT_UNTIL(timer.hasElapsed(1000));
@@ -379,7 +380,7 @@ void bot1() {
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
         ds.backwards(speed);
-        PT_WAIT_UNTIL(timer.hasElapsed(750));
+        PT_WAIT_UNTIL(timer.hasElapsed(900));
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
         horn.sendSequence(200, 100, 200);
@@ -408,6 +409,29 @@ void bot1() {
         //   100, 50, 100, 50, 100, 50, 100, 50);
 
         PT_END();
+}
+
+void broadcastMessage(JD::Receiver::Message c) {
+        static JD::Timer timer;
+        unsigned long    length = 0;
+        using Message           = JD::Receiver::Message;
+        
+        switch (c) {
+                case Message::msg200: length = 200; break;
+                case Message::msg300: length = 300; break;
+                case Message::msg400: length = 400; break;
+                case Message::msg500: length = 500; break;
+                default: length = 0; break;
+        }
+
+        if (timer.hasElapsed(length * 2))
+                speaker.send(length + 20);
+        // if (timer.isFinished()) {
+        //         Serial.println("in send");
+        //         speaker.send(520);
+        //         timer.start(600);
+        // }
+
 }
 
 void bot2() {
@@ -636,13 +660,13 @@ bool followEdge(JD::ColorSensor::Color c, JD::DriveSystem::Direction edge) {
         if (onColor && currTime - lastSwitch > wiggleFreq) {
                 // Serial.println("Blue to Black");
                 ds.stop();
-                ds.turn(DS::Direction(DS::LEFT ^ edge), speed);
+                ds.turn(DS::Direction(DS::LEFT ^ edge), speed/3,speed);
                 lastSwitch = currTime;
                 prevColor  = onColor;
         } else if (!onColor && currTime - lastSwitch > wiggleFreq) {
                 // Serial.println("Black to Blue");
                 ds.stop();
-                ds.turn(DS::Direction(DS::RIGHT ^ edge), speed);
+                ds.turn(DS::Direction(DS::RIGHT ^ edge), speed/3, speed);
                 lastSwitch = currTime;
                 prevColor  = onColor;
         } else if (currTime - lastSwitch > weLostIt) {

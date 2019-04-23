@@ -33,6 +33,14 @@ public:
                 return !isRunning;
         }
 
+        /**
+         * @brief Starts a timer returns true when time has elapsed
+         */
+        bool hasElapsed(unsigned long wait_ms) {
+                start(wait_ms);
+                return isFinished();
+        }
+
         bool          isRunning  = false;
         unsigned long finishTime = 0;
 };

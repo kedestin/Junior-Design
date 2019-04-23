@@ -39,11 +39,12 @@ public:
          * @param time_ms Duration of signal
          * @param noise   Whether signal should be noisy
          */
-        void send(long unsigned time_ms, bool noise = false) {
+        long unsigned send(long unsigned time_ms, bool noise = false) {
                 start   = millis();
                 sending = time_ms;
                 noisy   = noise;
                 digitalWrite(m_pin, HIGH);
+                return time_ms;
         }
 
         /**

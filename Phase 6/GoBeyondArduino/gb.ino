@@ -11,18 +11,19 @@
 #include "src/DriveFeedback.h"
 #include "src/Protothread.h"
 #include "src/Timer.h"
+#include "src/Horn.h"
 
 
-JD::DriveSystem drivesys(8, 9, 10, 11);
+JD::DriveSystem drivesys(10, 8, 11, 12);
 JD::DriveFeedback driveFeed(45, 38, 25, 27, 24, 26, drivesys);
 JD::ColorSensor colors(36, 37, A15);
 JD::Receiver receiver(A7);
-JD::Transmitter transmitter(22);
+JD::Transmitter transmitter(30);
 JD::Bumper bumpers(43, 42, 31);
 JD::Sensor proximity(A5);
 JD::LED blue(44);
+JD::Horn horn(6);
 const int HALL = 41;
-const int HORN = 3;
 unsigned long lastUpdate;
 const int durations[9] = {5, 100, 200, 300, 400, 500, 1000, 2000, 3000};
 char op = '\0', dur = '\0';
@@ -31,7 +32,7 @@ bool inProgress = false;
 
 JD::Updateable *peripherals[] = {&drivesys, &driveFeed, &colors,
                                  &receiver, &transmitter, &bumpers, 
-                                 &proximity};
+                                 &proximity, &horn};
 
 
 
@@ -40,7 +41,6 @@ void setup() {
     while(!Serial);
     JD::setupPWM();
     pinMode(HALL, INPUT);
-    pinMode(HORN, OUTPUT);
     lastUpdate = 0;
 }
 
@@ -53,7 +53,6 @@ void loop() {
     if (time - lastUpdate > 2000) {
         sendUpdates();
         lastUpdate = time;
-        blue.toggle();
     }
 
 
@@ -93,7 +92,7 @@ void loop() {
             case 'l':
                 if (!inProgress) {
                     inProgress = true;
-                    drivesys.turn(JD::DriveSystem::RIGHT);
+                    drivesys.turn(JD::DriveSystem::LEFT);
                     startedOp = time;
                 }
                 if (time - startedOp >= durations[dur - '0']) {
@@ -106,7 +105,7 @@ void loop() {
             case 't':
                 if (!inProgress) {
                     inProgress = true;
-                    drivesys.turn(JD::DriveSystem::LEFT);
+                    drivesys.turn(JD::DriveSystem::RIGHT);
                     startedOp = time;
                 }
                 if (time - startedOp >= durations[dur - '0']) {
@@ -119,11 +118,10 @@ void loop() {
             case 'h':
                 if (!inProgress) {
                     inProgress = true;
-                    analogWrite(HORN, 128);
+                    horn.sendSequence(durations[dur-'0']);
                     startedOp = time;
                 }
                 if (time - startedOp >= durations[dur - '0']) {
-                    digitalWrite(HORN, LOW);
                     inProgress = false;
                     op = '\0';
                     dur = '\0';                   

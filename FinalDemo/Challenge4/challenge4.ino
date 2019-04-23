@@ -4,7 +4,12 @@
 #include "src/Timer.h"
 #include "src/Sensor.h"
 
-JD::DriveSystem ds(10, 8, 11, 12, 20);
+/* For Loki */
+JD::DriveSystem ds({10, 8, 238, 255}, {11, 12, 255, 248});
+
+/* For Thor */
+//JD::DriveSystem ds({10, 8, 240, 255}, {11, 12, 255, 210});
+
 JD::DriveFeedback df(45, 38, 25, 24, 27, 26, ds);
 JD::Sensor proximity(A5);
 

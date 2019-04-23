@@ -20,6 +20,7 @@ private:
         long unsigned             blink_end;
 
         float forceInRange(float val, float minim, float maxim) {
+
                 return (val > maxim) ? maxim : (val < minim) ? minim : val;
         }
 
@@ -114,6 +115,8 @@ public:
         }
         void on(float val = 1.0) {
                 curr = MAX * forceInRange(val, 0.0, 1.0);
+                // Serial.println(curr);
+                // Serial.println(val);
                 analogWrite(m_pin, curr);
         }
 
