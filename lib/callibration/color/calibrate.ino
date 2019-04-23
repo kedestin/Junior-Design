@@ -7,7 +7,7 @@
 #include "src/Led.h"
 #include "src/Protothread.h"
 #include "src/Timer.h"
-
+#include "src/Filter.h"
 JD::LED           indicator(LED_BUILTIN);
 constexpr uint8_t RED_LED  = 36;
 constexpr uint8_t BLUE_LED = 37;
@@ -25,6 +25,10 @@ void setup() {
 
 void loop() {
         static JD::Timer timer;
+        static ExponentialFilter<JD::ColorSensor::RawData> blue(1, cs.raw());
+        static ExponentialFilter<JD::ColorSensor::RawData> red(1, cs.raw());
+        static ExponentialFilter<JD::ColorSensor::RawData> yellow(1, cs.raw());
+        static ExponentialFilter<JD::ColorSensor::RawData> black(1, cs.raw());
         for (auto p : peripherals)
                 p->update();
 
@@ -34,29 +38,30 @@ void loop() {
         Serial.println(millis());
         Serial.println("Black");
         timer.start(wait_for);
-        PT_WAIT_UNTIL(timer.isFinished());
-        JD::Calibration::set(JD::Calibration::ColorBlack, cs.raw());
+        PT_WAIT_UNTIL((black.update(cs.raw()),timer.isFinished()));
+        // JD::Calibration::set(JD::Calibration::ColorBlack, cs.raw());
+        JD::Calibration::set(JD::Calibration::ColorBlack, black.current());
         printVec(cs.raw());
 
         Serial.println(millis());
         Serial.println("Yellow");
         timer.start(wait_for);
-        PT_WAIT_UNTIL(timer.isFinished());
-        JD::Calibration::set(JD::Calibration::ColorYellow, cs.raw());
+        PT_WAIT_UNTIL((yellow.update(cs.raw()),timer.isFinished()));
+        JD::Calibration::set(JD::Calibration::ColorYellow, yellow.current());
         printVec(cs.raw());
 
         Serial.println(millis());
         Serial.println("Red");
         timer.start(wait_for);
-        PT_WAIT_UNTIL(timer.isFinished());
-        JD::Calibration::set(JD::Calibration::ColorRed, cs.raw());
+        PT_WAIT_UNTIL((red.update(cs.raw()),timer.isFinished()));
+        JD::Calibration::set(JD::Calibration::ColorRed, red.current());
         printVec(cs.raw());
 
         Serial.println(millis());
         Serial.println("Blue");
         timer.start(wait_for);
-        PT_WAIT_UNTIL(timer.isFinished());
-        JD::Calibration::set(JD::Calibration::ColorBlue, cs.raw());
+        PT_WAIT_UNTIL((blue.update(cs.raw()),timer.isFinished()));
+        JD::Calibration::set(JD::Calibration::ColorBlue, blue.current());
         printVec(cs.raw());
         Serial.println(millis());
 
