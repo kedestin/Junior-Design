@@ -82,7 +82,7 @@ void loop() {
         for (auto p : peripherals)
                 p->update();
         static JD::Timer timer;
-
+        // Serial.println(halleffect.read());
         // switch (mic.receivedMsg()){
         //         case JD::Receiver::msg200 :
         //         Serial.println("msg200");blue.blink(2); break; case
@@ -360,16 +360,16 @@ void bot1() {
 
         // Bot 1 then  signals  to  the  TCC  with  a  300  ms  unit  step
         // function  “message_2”.
-        speaker.send(330);
-        PT_WAIT_UNTIL(timer.hasElapsed(500));
-        speaker.send(330);
-        PT_WAIT_UNTIL(timer.hasElapsed(500));
-        speaker.send(330);
-        PT_WAIT_UNTIL(timer.hasElapsed(500));
-        speaker.send(330);
-        PT_WAIT_UNTIL(timer.hasElapsed(500));
-        speaker.send(330);
-        PT_WAIT_UNTIL(timer.hasElapsed(500));
+        speaker.send(310);
+        PT_WAIT_UNTIL(timer.hasElapsed(600));
+        speaker.send(310);
+        PT_WAIT_UNTIL(timer.hasElapsed(600));
+        speaker.send(310);
+        PT_WAIT_UNTIL(timer.hasElapsed(600));
+        speaker.send(310);
+        PT_WAIT_UNTIL(timer.hasElapsed(600));
+        speaker.send(310);
+        PT_WAIT_UNTIL(timer.hasElapsed(600));
         ds.backwards(speed);
         PT_WAIT_UNTIL(timer.hasElapsed(1000));
         ds.stop();
@@ -420,12 +420,13 @@ void bot2() {
 
         PT_BEGIN();
         Serial.println("bot 2");
-        /*PT_WAIT_UNTIL(mic.receivedMsg() == JD::Receiver::msg500);
-        communication.blink(2);
+        PT_WAIT_UNTIL(mic.receivedMsg() == JD::Receiver::msg500);
+        blue.blink(2);
         Serial.println("got 500");
         PT_WAIT_UNTIL(mic.receivedMsg() == JD::Receiver::msg300);
+        blue.blink(3);
         speaker.send(500);
-        PT_WAIT_UNTIL(timer.hasElapsed(700));*/
+        PT_WAIT_UNTIL(timer.hasElapsed(700));
 
         // Bot 1 illuminates  its  start  LED  and  then  starts to  move.
         start.on();

@@ -12,6 +12,7 @@ private:
         LED                speedometer;
         SevenSegment       gearshifter;
         const DriveSystem& drivesystem;
+        bool               isParked = false;
 
 public:
         Dashboard(LED l, SevenSegment gs, const DriveSystem& ds)
@@ -24,13 +25,13 @@ public:
                         gearshifter.display('d');
                 else if (drivesystem.isBackwards())
                         gearshifter.display('r');
-                else if (drivesystem.isStopped())
+                else if (drivesystem.isStopped() && not isParked)
                         gearshifter.display('n');
+                else if (drivesystem.isStopped() && isParked)
+                        gearshifter.display('p');
         }
 
-        void gearshifterPark(){
-                gearshifter.display('p');
-        }
+        void gearshifterPark() { isParked = true; }
 };
 }  // namespace JD
 #endif

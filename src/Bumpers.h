@@ -17,12 +17,15 @@ public:
                 // Serial.print(' ');
                 // Serial.print(!digitalRead(m_pin[Back]));
                 // Serial.print('\n');
+                val = 0;
                 val |= (!digitalRead(m_pin[FrontLeft])) << FrontLeft;
                 val |= (!digitalRead(m_pin[FrontRight])) << FrontRight;
                 val |= (!digitalRead(m_pin[Back])) << Back;
         }
 
         Collision read() {
+                // uint8_t temp         = val;
+                // val                  = 0;
                 constexpr uint8_t FL = 1 << FrontLeft, FR = 1 << FrontRight,
                                   B = 1 << Back;
                 switch (val) {
@@ -37,4 +40,3 @@ public:
 }  // namespace JD
 
 #endif
-
