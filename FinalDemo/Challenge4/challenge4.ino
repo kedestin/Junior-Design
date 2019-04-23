@@ -1,13 +1,20 @@
 #include "src/DriveFeedback.h"
 #include "src/DriveSystem.h"
 #include "src/Updateable.h"
-JD::DriveSystem ds(-1,-1,-1,-1);
-JD::DriveFeedback df(-1,-1,-1,-1,-1,-1, ds);
+#include "src/Timer.h"
+#include "src/Sensor.h"
 
-JD::Updateable* peripherals[] = {&ds, &df};
+JD::DriveSystem ds(10, 8, 11, 12, 20);
+JD::DriveFeedback df(45, 38, 25, 24, 27, 26, ds);
+JD::Sensor proximity(A5);
+
+JD::Updateable* peripherals[] = {&ds, &df, &proximity};
 
 
 void setup() {
+        Serial.begin(115200);
+        while(!Serial);
+        Serial.println("Starting");
         df.headLightOn();
 }
 
@@ -26,19 +33,34 @@ void loop() {
 
         for (auto p : peripherals)
                 p->update();
+
+        JD::Timer timer;
+
         PT_BEGIN();
 
+        Serial.println("drive?");
         ds.forwards();
+        PT_WAIT_UNTIL(proximity.read() > 100);
 
-        PT_WAIT_UNTIL(static_assert(false, "Detect light"), false);
+        // PT_WAIT_UNTIL(static_assert(false, "Detect light"), false);
 
         // When the two bots become close enough to detect each other’s
         // presence, they must  stop,  communicate,  flash  their  headlights
         // twice,  and  illuminate  their  rear  yellow turn signals.
         ds.stop();
         //coMmuNiCAte
+        PT_WAIT_UNTIL(timer.hasElapsed(200));
+        df.headLightOn();
+        PT_WAIT_UNTIL(timer.hasElapsed(50));
+        df.headLightOff();
+        PT_WAIT_UNTIL(timer.hasElapsed(50));
+        df.headLightOn();
+        PT_WAIT_UNTIL(timer.hasElapsed(50));
+        df.headLightOff();
+        df.turnLightsOn();
+
         
-        static_assert(false, "Flash headlights twice");
-        static_assert(false, "Illuminate rear yellow turn signals");
+        // static_assert(false, "Flash headlights twice");
+        // static_assert(false, "Illuminate rear yellow turn signals");
         PT_END();
 }
