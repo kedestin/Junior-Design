@@ -96,10 +96,10 @@ void loop() {
         // }
         // return;
 
-        //
-        if (timer.hasElapsed(1500))
-                speaker.send(500);
-        return;
+        
+        // if (timer.hasElapsed(1500))
+        //         speaker.send(520);
+        //         return;
         if (sw.read() == 0)
                 bot1();
         else
@@ -128,7 +128,7 @@ void bot1() {
         // starting.
         // Bot 1 illuminates  its  start  LED  and  then  starts to  move.
         start.on();
-        // ds.forwards(speed);
+        ds.forwards(speed);
 
         // The  bot  mimics  the  white  dotted  line until it collides with
         // the wall of the test track.
@@ -175,8 +175,8 @@ void bot1() {
              (printColor(), halleffect.read() == 1)));
         Serial.println("Stopping");
         ds.stop();
-        // PT_WAIT_UNTIL(timer.hasElapsed(1000));
-        PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        PT_WAIT_UNTIL(timer.hasElapsed(1000));
+        //PT_WAIT_UNTIL(ds.getSpeed() == 0);
         Serial.println("Done following blue");
 
         // Here it turns off  the blue LED  and  illuminates  a green LED
@@ -228,6 +228,11 @@ void bot1() {
              (halleffect.read() == 1)));
         ds.stop();
         PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        
+        // static_assert(false, "Honk twice");
+        horn.sendSequence(500, 500, 500);
+        PT_WAIT_UNTIL(timer.hasElapsed(1600));
+        
         ds.forwards(speed);
         PT_WAIT_UNTIL(timer.hasElapsed(2000));
         Serial.println("Done following yellow");
@@ -237,10 +242,6 @@ void bot1() {
 
         ds.stop();
         PT_WAIT_UNTIL(ds.getSpeed() == 0);
-
-        // static_assert(false, "Honk twice");
-        horn.sendSequence(500, 500, 500);
-        PT_WAIT_UNTIL(timer.hasElapsed(1600));
 
         // static_assert(false, "Make a 90 degree left turn");
         ds.rotate(JD::DriveSystem::LEFT, speed);
@@ -264,6 +265,7 @@ void bot1() {
         Serial.println("Rotating");
         ds.rotate(JD::DriveSystem::LEFT, speed);
         PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Red);
+        red.on();
 
         // static_assert(false, "Follow red path until detects pedestrian");
 
@@ -283,22 +285,22 @@ void bot1() {
         Serial.println("Sending Message");
 
         ds.rotate(JD::DriveSystem::RIGHT, speed);
-        PT_WAIT_UNTIL(timer.hasElapsed(timeForXDeg(speed, 30)));
+        PT_WAIT_UNTIL(timer.hasElapsed(timeForXDeg(speed, 40)));
         ds.stop();
         PT_WAIT_UNTIL(ds.getSpeed() == 0);
         PT_WAIT_UNTIL(timer.hasElapsed(500));  // Wait a little longer
 
         // communicate  with  the  TCC  via  a  200  ms  message_1
         // while (1) {
-        speaker.send(230);
+        speaker.send(220);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(230);
+        speaker.send(220);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(230);
+        speaker.send(220);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(230);
+        speaker.send(220);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
-        speaker.send(230);
+        speaker.send(220);
         PT_WAIT_UNTIL(timer.hasElapsed(600));
         mic.receivedMsg();  // discard sent message
         // }s
@@ -376,7 +378,13 @@ void bot1() {
         PT_WAIT_UNTIL(timer.hasElapsed(900));
         ds.stop();
         PT_WAIT_UNTIL(ds.getSpeed() == 0);
-        horn.sendSequence(200, 100, 200);
+        PT_WAIT_UNTIL(mic.receivedMsg() == JD::Receiver::msg500);
+        ds.forwards(speed);
+        PT_WAIT_UNTIL(bumper.read() != JD::Bumper::None);
+        ds.stop();
+        PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        horn.sendSequence(500, 500, 500);
+
 
         // // //  Bot  2  signals a  500  ms message to Bot 1 that is it is
         // // starting
@@ -419,7 +427,7 @@ void broadcastMessage(JD::Receiver::Message c) {
                 default: length = 0; break;
         }
 
-        if (timer.hasElapsed(length + 150))
+        if (timer.hasElapsed(length + 250))
                 speaker.send(length + 20);
         // if (timer.isFinished()) {
         //         Serial.println("in send");
@@ -477,7 +485,7 @@ void bot2() {
         // PT_WAIT_UNTIL(cs.read() == JD::ColorSensor::Blue);
 
         // When it does so, Bot 1 illuminates a blueLED.
-        blue.on();
+        red.on();
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
 
@@ -496,12 +504,14 @@ void bot2() {
         PT_WAIT_UNTIL(timer.hasElapsed(1000));
         Serial.println("Done following red");
         // Here it turns off  the blue LED  and  illuminates  a green LED
-        blue.off();
+        red.off();
         green.on();
 
         ds.forwards(speed);
         // timer.start(800);
         PT_WAIT_UNTIL(timer.hasElapsed(1500));
+        ds.stop();
+        PT_WAIT_UNTIL(ds.getSpeed() == 0);
         // Bot  1  makes  a 90° right turn. The  bot will  be  judged  how
         // tight a  90° right turn  it  makes
         ds.rotate(JD::DriveSystem::LEFT, speed);
@@ -548,7 +558,10 @@ void bot2() {
             (followEdge(JD::ColorSensor::Yellow, JD::DriveSystem::LEFT),
              (halleffect.read() == 1)));
         ds.stop();
+        green.blink(1);
         PT_WAIT_UNTIL(timer.hasElapsed(1000));
+        horn.sendSequence(500, 500, 500);
+        PT_WAIT_UNTIL(timer.hasElapsed(1600));
         ds.forwards(speed);
         PT_WAIT_UNTIL(timer.hasElapsed(2000));
         ds.stop();
@@ -560,9 +573,6 @@ void bot2() {
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
         // static_assert(false, "Honk twice");
-
-        horn.sendSequence(500, 500, 500);
-        PT_WAIT_UNTIL(timer.hasElapsed(1600));
 
         // static_assert(false, "Make a 90 degree left turn");
         ds.rotate(JD::DriveSystem::RIGHT, speed);
@@ -632,7 +642,7 @@ void bot2() {
         // PT_WAIT_UNTIL(mic.receivedMsg() == JD::Receiver::msg200);
         PT_WAIT_UNTIL(mic.receivedMsg() != JD::Receiver::msgNone);
 
-        communication.on();
+        blue.blink(1);
 
         // // and continues along the redpath to the end of the path at the
         // wall.
@@ -642,8 +652,49 @@ void bot2() {
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
 
-        horn.sendSequence(200, 100, 200);
+        PT_WAIT_UNTIL((followEdge(JD::ColorSensor::Blue, JD::DriveSystem::RIGHT),
+                       (bumper.read() != JD::Bumper::None)));
+        ds.stop();
+        PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        blue.blink(2);
+        PT_WAIT_UNTIL(timer.hasElapsed(200));
+        // When it detects the wall at the end of the redpath, it stops,
+        // blinking its redLED twice.
+        ds.backwards(speed);
+        PT_WAIT_UNTIL(timer.hasElapsed(500));
+        ds.stop();
+        PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        ds.rotate(JD::DriveSystem::RIGHT, speed);
+        PT_WAIT_UNTIL(timer.hasElapsed(timeForXDeg(speed, 90)));
+        ds.stop();
+        PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        speaker.send(520);
+        PT_WAIT_UNTIL(timer.hasElapsed(700));
+        bumper.read();
+        ds.forwards(speed);
+        PT_WAIT_UNTIL(bumper.read() != JD::Bumper::None);
+        ds.stop();
+        PT_WAIT_UNTIL(ds.getSpeed() == 0);
+        horn.sendSequence(500, 500, 500);
+
+        endingSequence();
+
         PT_END();
+}
+
+void endingSequence() {
+        JD::Timer timer;
+        for (int i = 0; i < 10; i++) {
+                feed.headLightOn();
+                feed.brakeOn();
+                feed.turnOn();
+                horn.sendSequence(200);
+                while (horn.isSending()) horn.update();
+                feed.headLightOff();
+                feed.brakeOff();
+                feed.turnOff();
+                while (!timer.hasElapsed(200));
+        }
 }
 
 // bool followEdge(JD::ColorSensor::Color c, JD::DriveSystem::Direction edge) {
