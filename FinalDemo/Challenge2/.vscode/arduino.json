@@ -2,5 +2,5 @@
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
     "port": "COM4",
-    "sketch": "challenge1.ino"
+    "sketch": "challenge2.ino"
 }

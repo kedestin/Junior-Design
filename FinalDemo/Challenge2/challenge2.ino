@@ -5,6 +5,7 @@
 #include "src/Timer.h"
 #include "src/Transmitter.h"
 #include "src/Updateable.h"
+#include "src/PWM.h"
 JD::Transmitter speaker(30);
 JD::Receiver    mic(A7);
 //JD::DriveSystem ds({10, 8, 236, 255}, {11, 12, 236,255});  /* For Loki */
@@ -15,10 +16,11 @@ JD::Updateable* peripherals[] = {&mic, &speaker, &sw, &ds};
 double _1_25_in_per_s;
  double distance_in = 12;
 void setup() {
+  JD::setupPWM();
   Serial.begin(115200);
-  double valueToSetCalibration = .2;
-  JD::Calibration::set(JD::Calibration::driveAt_1_25_inch_s, valueToSetCalibration);
-  JD::Calibration::get(JD::Calibration::driveAt_1_25_inch_s, _1_25_in_per_s);
+  //double valueToSetCalibration = .2;
+  //JD::Calibration::set(JD::Calibration::driveAt_1_25_inch_s, valueToSetCalibration);
+  //JD::Calibration::get(JD::Calibration::driveAt_1_25_inch_s, _1_25_in_per_s);
 }
 
 void runTest(bool& done) {
@@ -95,64 +97,76 @@ void runTest(bool& done) {
 //        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 2.1 * 1000));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(200));
-//        
+       
 //        // Rotate 180 degrees
 //        ds.rotate(JD::DriveSystem::RIGHT, 0.5);
 //        PT_WAIT_UNTIL(timer.hasElapsed(375 * 3));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(200));
-//        
+       
 //        // Move backwards 3 inches
 //        distance_in = 3;
 //        ds.backwards(_1_25_in_per_s);
 //        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 2 * 1000));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(200));
-//        
+       
 //        // Rotate 90 degrees left
 //        ds.rotate(JD::DriveSystem::LEFT, 0.5);
 //        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1.7));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(800));
-//        
+       
 //        // Rotate 90 degrees right
 //        ds.rotateDeg(JD::DriveSystem::RIGHT, 0.4);
 //        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(500));
-//        
+       
 //        // Rotate 90 degrees right
 //        ds.rotate(JD::DriveSystem::RIGHT, 0.5);
 //        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.25));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(500));
-//        
+       
 //        // Rotate 90 degrees right
 //        ds.rotate(JD::DriveSystem::RIGHT, 0.5);
 //        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.25));
 //        ds.stop();
 
         
-        PT_END();
-        done = true;
+         PT_END();
+         done = true;
 }
 
 void loop() {
-        for (auto p : peripherals)
+        JD::Timer timer;
+
+        for (auto p : peripherals) {
                 p->update();
+        }
 
         if (sw.read() == 0) {
                 bool isDone = false;
-                //while(mic.receivedMsg() != JD::Receiver::msg500);
+                while(mic.receivedMsg() == JD::Receiver::msgNone) {
+                        mic.update();
+                        Serial.println("still looking?");
+                }
                 while(!isDone){
                   runTest(isDone);
                 }
-                //speaker.send(500);
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
                 while(1);
         } else {
                 bool isDone = false;
-                //speaker.send(500);
-                //while(mic.receivedMsg() != JD::Receiver::msg500);
+                speaker.send(500);
+                unsigned long startTime = millis();
+                while (!timer.hasElapsed(800)) {
+                        speaker.update();
+                }
+                mic.receivedMsg();
+                while(mic.receivedMsg() != JD::Receiver::msg500) mic.update();
                 while(!isDone) {
                   runTest(isDone);
                 }
