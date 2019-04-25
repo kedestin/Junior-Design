@@ -40,5 +40,6 @@
                 "list": "cpp",
                 "iomanip": "cpp",
                 "memory": "cpp"
-        }
+        },
+        "C_Cpp.errorSquiggles": "Disabled"
 }

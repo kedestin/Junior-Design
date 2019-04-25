@@ -110,6 +110,14 @@ public:
         void headLightOn() { head.on(); }
 
         void headLightOff() { head.off(); }
+
+        void turnOn() { turn.on(); }
+
+        void turnOff() { turn.off(); }
+
+        void brakeOn() { brake.on(); }
+
+        void brakeOff() { brake.off(); }
 };
 }  // namespace JD
 
