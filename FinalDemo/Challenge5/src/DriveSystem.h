@@ -84,7 +84,10 @@ public:
                 //rampUp(val, val);
                 
                 //for Thor challenge 5:
-                rampUp(val, val * 0.85);
+                //rampUp(val, val * 0.85);
+
+                //for Loki challenge 5:
+                rampUp(val * 0.83, val);
                  }
         void backwards(double val = 1) { rampUp(-val, -val); }
         void stop() { forwards(0); }

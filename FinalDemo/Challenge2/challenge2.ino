@@ -157,6 +157,20 @@ void loop() {
                 }
                 speaker.send(500);
                 while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) speaker.update();
                 while(1);
         } else {
                 bool isDone = false;
