@@ -400,12 +400,12 @@ void bot1() {
         ds.stop();
         PT_WAIT_UNTIL(ds.isStopped());
         ds.rotate(JD::DriveSystem::RIGHT, speed);
-        PT_WAIT_UNTIL(timer.hasElapsed(timeForXDeg(speed, 100)));
+        PT_WAIT_UNTIL(timer.hasElapsed(timeForXDeg(speed, 105)));
         ds.stop();
         PT_WAIT_UNTIL(ds.isStopped());
         ds.backwards(speed);
         // PT_WAIT_UNTIL(timer.hasElapsed(900));
-        PT_WAIT_UNTIL(bumper.read() != JD::Bumper::None);
+        PT_WAIT_UNTIL(timer.hasElapsed(1500));
         ds.stop();
         PT_WAIT_UNTIL(ds.isStopped());
         PT_WAIT_UNTIL(timer.hasElapsed(35000));
