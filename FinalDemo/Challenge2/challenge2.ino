@@ -13,14 +13,14 @@ JD::DriveSystem ds({10, 8, 240, 230}, {11, 12, 235, 200}); /* For Thor */
 JD::Switch<1>   sw(33);
 JD::Updateable* peripherals[] = {&mic, &speaker, &sw, &ds};
 
-double _1_25_in_per_s;
+double _1_25_in_per_s = 0.3;
  double distance_in = 12;
 void setup() {
   JD::setupPWM();
   Serial.begin(115200);
-  //double valueToSetCalibration = .2;
-  //JD::Calibration::set(JD::Calibration::driveAt_1_25_inch_s, valueToSetCalibration);
-  //JD::Calibration::get(JD::Calibration::driveAt_1_25_inch_s, _1_25_in_per_s);
+//   double valueToSetCalibration = .3;
+//   JD::Calibration::set(JD::Calibration::driveAt_1_25_inch_s, valueToSetCalibration);
+//   JD::Calibration::get(JD::Calibration::driveAt_1_25_inch_s, _1_25_in_per_s);
 }
 
 void runTest(bool& done) {
@@ -51,13 +51,13 @@ void runTest(bool& done) {
         /* Commands/Values for Loki */
         
 //        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 3.5 * 1000));
-        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 2 * 1000));
+        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 3.5 * 1000));
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
         
         // Rotate 180 degrees
         ds.rotate(JD::DriveSystem::RIGHT, 0.5);
-        PT_WAIT_UNTIL(timer.hasElapsed(375 * 2.8));
+        PT_WAIT_UNTIL(timer.hasElapsed(375 * 3.4));
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(200));
         
@@ -70,68 +70,68 @@ void runTest(bool& done) {
         
         // Rotate 90 degrees left
         ds.rotate(JD::DriveSystem::LEFT, 0.5);
-        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1.5));
+        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1.8));
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(800));
         
         // Rotate 90 degrees right
         ds.rotateDeg(JD::DriveSystem::RIGHT, 0.4);
-        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1.1));
+        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1));
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(500));
         
         // Rotate 90 degrees right
         ds.rotate(JD::DriveSystem::RIGHT, 0.5);
-        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.2));
+        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.6));
         ds.stop();
         PT_WAIT_UNTIL(timer.hasElapsed(500));
         
         // Rotate 90 degrees right
         ds.rotate(JD::DriveSystem::RIGHT, 0.5);
-        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.2));
+        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.6));
         ds.stop();
 
 
         /* Commands/Values for Thor */
         
-//        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 2.1 * 1000));
+//        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 6 * 1000));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(200));
        
 //        // Rotate 180 degrees
 //        ds.rotate(JD::DriveSystem::RIGHT, 0.5);
-//        PT_WAIT_UNTIL(timer.hasElapsed(375 * 3));
+//        PT_WAIT_UNTIL(timer.hasElapsed(375 * 3.5));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(200));
        
 //        // Move backwards 3 inches
 //        distance_in = 3;
 //        ds.backwards(_1_25_in_per_s);
-//        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 2 * 1000));
+//        PT_WAIT_UNTIL(timer.hasElapsed(distance_in / 2.5 * 1000));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(200));
        
 //        // Rotate 90 degrees left
 //        ds.rotate(JD::DriveSystem::LEFT, 0.5);
-//        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1.7));
+//        PT_WAIT_UNTIL(timer.hasElapsed(375 * 2));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(800));
        
 //        // Rotate 90 degrees right
 //        ds.rotateDeg(JD::DriveSystem::RIGHT, 0.4);
-//        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1));
+//        PT_WAIT_UNTIL(timer.hasElapsed(375 * 1.15));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(500));
        
 //        // Rotate 90 degrees right
-//        ds.rotate(JD::DriveSystem::RIGHT, 0.5);
+//        ds.rotate(JD::DriveSystem::RIGHT, 0.6);
 //        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.25));
 //        ds.stop();
 //        PT_WAIT_UNTIL(timer.hasElapsed(500));
        
 //        // Rotate 90 degrees right
-//        ds.rotate(JD::DriveSystem::RIGHT, 0.5);
-//        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.25));
+//        ds.rotate(JD::DriveSystem::RIGHT, 0.6);
+//        PT_WAIT_UNTIL(timer.hasElapsed(375* 1.5));
 //        ds.stop();
 
         
@@ -161,12 +161,19 @@ void loop() {
         } else {
                 bool isDone = false;
                 speaker.send(500);
-                unsigned long startTime = millis();
                 while (!timer.hasElapsed(800)) {
                         speaker.update();
                 }
+                speaker.send(500);
+                while (!timer.hasElapsed(800)) {
+                        speaker.update();
+                }
+                while (!timer.hasElapsed(5000));
                 mic.receivedMsg();
-                while(mic.receivedMsg() != JD::Receiver::msg500) mic.update();
+                while(mic.receivedMsg() == JD::Receiver::msgNone) {
+                        Serial.println("huh");
+                        mic.update();
+                }
                 while(!isDone) {
                   runTest(isDone);
                 }

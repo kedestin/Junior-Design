@@ -12,10 +12,10 @@ JD::Updateable* peripherals[] = {&ds};
 
 void            setup() {
   /* For Loki */
-  double valueToSetCalibration = .1585;
+  //double valueToSetCalibration = .1585;
 
   /* For Thor */
-//  double valueToSetCalibration = .195;
+  double valueToSetCalibration = .23;
   
   JD::Calibration::set(JD::Calibration::driveAt_1_25_inch_s, valueToSetCalibration);
 }

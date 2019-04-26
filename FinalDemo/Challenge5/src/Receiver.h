@@ -97,13 +97,12 @@ public:
          */
         void update() override {
                 static unsigned long count = 0, lastUpdated = 0,
-                                     threshold = 300;
+                                     threshold = 200;
                 Serial.print(analogRead(m_pin));
                 Serial.print(' ');
                 Serial.print(threshold);
                 Serial.print(' ');
                 Serial.print(500);
-                Serial.println();
                 if (analogRead(m_pin) > threshold) {
                         if (lastUpdated == 0)
                                 lastUpdated = millis();
@@ -121,8 +120,8 @@ public:
                         }
                         lastUpdated = count = 0;
                 }
-                // Serial.print(' ');
-                // Serial.print(count);
+                Serial.print(' ');
+                Serial.print(count);
                 // // Reading is more accurate with < 10ms samplePeriod
                 // if (millis() - lastUpdated > samplePeriod) {
                 //         Status currStatus = getStatus();
